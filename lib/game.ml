@@ -37,6 +37,7 @@ type t =
   { (*player_one : Player.t ; player_two : Player.t ; game_state :
       Game_state.t *)
     difficulty : Level.t
+  ; mutable islands : Island.t list
   }
 
 module My_components = Graph.Components.Make (G)
@@ -98,11 +99,10 @@ let create game =
     ; "Oberon"
     ]
   in
-  List.iter (List.range 0 size) ~f:(fun idx ->
-    let planet = List.nth_exn solar_system idx in
-    G.add_vertex graph planet);
   let nodes =
-    List.map solar_system ~f:(fun planet ->
+    List.map (List.range 0 size) ~f:(fun idx ->
+      let planet = List.nth_exn solar_system idx in
+      G.add_vertex graph planet;
       let x =
         Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn
       in
@@ -111,6 +111,15 @@ let create game =
       in
       planet, x, y)
   in
+  let islands =
+    List.map nodes ~f:(fun (planet, x, y) ->
+      { Island.name = planet
+      ; position = x, y
+      ; question = ""
+      ; color = 0, 0, 0
+      })
+  in
+  game.islands <- islands;
   create_graph ~graph ~nodes ~distance:1.0;
   Dot.output_graph (Out_channel.create "map.dot") graph
 ;;
@@ -131,6 +140,7 @@ let game_command =
           { (* player_one ; player_two ( ; game_state =
                Game_state.Game_continues island *)
             difficulty = level
+          ; islands = []
           }
         in
         create game]
