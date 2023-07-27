@@ -59,6 +59,7 @@ let rec create_graph ~graph ~nodes ~(distance : float) =
     graph
 ;;
 
+(*Initialized a game w/ the islands and outputs a graph as the*)
 let create game =
   let graph = G.create () in
   let size, bound =
