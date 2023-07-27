@@ -39,7 +39,9 @@ type t =
     difficulty : Level.t
   }
 
-let rec create_graph ~graph ~nodes ~(distance : float) =
+module My_components = Graph.Components.Make (G)
+
+let create_graph ~graph ~nodes ~(distance : float) =
   List.iter nodes ~f:(fun (node_1, x1, y1) ->
     List.iter nodes ~f:(fun (node_2, x2, y2) ->
       if String.equal node_1 node_2
@@ -51,11 +53,17 @@ let rec create_graph ~graph ~nodes ~(distance : float) =
         in
         if Float.( < ) pythagoreum distance
         then G.add_edge graph node_1 node_2)));
-  G.iter_vertex
-    (fun vertex ->
-      if G.out_degree graph vertex = 0
-      then create_graph ~graph ~nodes ~distance:(distance +. 0.5))
-    graph
+  let islands = My_components.scc_list graph in
+  let island_count = List.length islands in
+  if island_count > 1
+  then
+    List.range 0 (island_count - 2)
+    |> List.iter ~f:(fun (island_number : int) ->
+      G.add_edge
+        graph
+        (List.random_element_exn (List.nth_exn islands island_number))
+        (List.random_element_exn (List.nth_exn islands (island_number + 1))))
+  else ()
 ;;
 
 (*Initialized a game w/ the islands and outputs a graph as the*)

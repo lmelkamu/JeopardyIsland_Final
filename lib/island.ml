@@ -3,6 +3,6 @@ open! Core
 type t =
   { name : string
   ; position : int * int
-  ; question : string
+  ; question : Question.t
   ; color : int * int * int
   }
