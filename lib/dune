@@ -7,5 +7,8 @@
   lambdasoup
   uri
   cohttp-async
-  ppxlib)
+  ppxlib
+  jsonaf)
+ (preprocess
+  (pps ppx_jane ppx_jsonaf_conv))
  (name JeopardyIsland_Final))
