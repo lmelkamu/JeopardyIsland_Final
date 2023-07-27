@@ -37,6 +37,7 @@ type t =
   { (*player_one : Player.t ; player_two : Player.t ; game_state :
       Game_state.t *)
     difficulty : Level.t
+  ; islands : Island.t list
   }
 
 let rec create_graph ~graph ~nodes ~(distance : float) =
@@ -122,6 +123,7 @@ let game_command =
           { (* player_one ; player_two ( ; game_state =
                Game_state.Game_continues island *)
             difficulty = level
+          ; islands = []
           }
         in
         create game]
