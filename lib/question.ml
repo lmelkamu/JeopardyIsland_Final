@@ -13,6 +13,8 @@ module Question = struct
   [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
 end
 
+let get_question (t : Question.t) = t.question
+
 (* things we need to get set up: pull from an API ORRRR, we need a sufficient
    question bank with quetsions and plausible answers *)
 let get_questions number =
@@ -35,6 +37,12 @@ let%expect_test _ =
   in
   let json = Jsonaf.parse json_str |> Or_error.ok_exn in
   let questions = t_of_jsonaf json in
+  List.iter questions.results ~f:(fun result ->
+    print_s
+      [%message
+        (result.question : string)
+          (result.correct_answer : string)
+          (result.incorrect_answers : string list)]);
   print_s [%message (questions : t)];
   return
     [%expect
