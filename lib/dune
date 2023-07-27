@@ -1,0 +1,11 @@
+(library
+ (libraries
+  core
+  curl
+  file_path
+  ocamlgraph
+  lambdasoup
+  uri
+  cohttp-async
+  ppxlib)
+ (name JeopardyIsland_Final))

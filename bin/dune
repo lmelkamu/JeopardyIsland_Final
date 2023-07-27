@@ -1,0 +1,4 @@
+(executable
+ (public_name JeopardyIsland_Final)
+ (name main)
+ (libraries JeopardyIsland_Final))
