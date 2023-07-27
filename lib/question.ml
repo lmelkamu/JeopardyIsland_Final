@@ -29,9 +29,8 @@ let get_questions number =
 type t = { results : Question.t list }
 [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
 
-let parse_label (label : label) =
-  Jsonaf.parse label |> Or_error.ok_exn |> t_of_jsonaf
-;;
+(* let parse_label (label : label) = Jsonaf.parse label |> Or_error.ok_exn |>
+   t_of_jsonaf ;; *)
 
 let%expect_test _ =
   let json_str =

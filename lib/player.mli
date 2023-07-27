@@ -9,7 +9,7 @@ end
 
 type t =
   { name : string
-  ; points : int
+  ; mutable points : int
   ; curr_island : Island.t
-  ; upgrades : Upgrade.t
+  ; mutable upgrades : Upgrade.t
   }

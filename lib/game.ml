@@ -37,7 +37,6 @@ type t =
   { (*player_one : Player.t ; player_two : Player.t ; game_state :
       Game_state.t *)
     difficulty : Level.t
-  ; mutable islands : Island.t list
   }
 
 let rec create_graph ~graph ~nodes ~(distance : float) =
@@ -91,16 +90,9 @@ let create game =
     ; "Oberon"
     ]
   in
-  let islands =
-    List.map (List.range 0 size) ~f:(fun idx ->
-      let planet = List.nth_exn solar_system idx in
-      G.add_vertex graph planet;
-      { Island.name = planet
-      ; position = 0, 0
-      ; question = ""
-      ; color = 0, 0, 0
-      })
-  in
+  List.iter (List.range 0 size) ~f:(fun idx ->
+    let planet = List.nth_exn solar_system idx in
+    G.add_vertex graph planet);
   let nodes =
     List.map solar_system ~f:(fun planet ->
       let x =
@@ -131,7 +123,6 @@ let game_command =
           { (* player_one ; player_two ( ; game_state =
                Game_state.Game_continues island *)
             difficulty = level
-          ; islands = []
           }
         in
         create game]
