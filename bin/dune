@@ -1,4 +1,4 @@
 (executable
  (public_name JeopardyIsland_Final)
  (name main)
- (libraries JeopardyIsland_Final))
+ (libraries JeopardyIsland_Final core_unix.command_unix async))
