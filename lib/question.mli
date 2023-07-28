@@ -2,7 +2,10 @@ open! Core
 open! Async
 open! Cohttp_async
 open! Jsonaf
+<<<<<<< HEAD
 open! Ppxlib
+=======
+>>>>>>> 3468c27 (setting up skeleton for react later)
 
 val question_command : Command.t
 
