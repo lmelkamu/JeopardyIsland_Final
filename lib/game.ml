@@ -141,6 +141,10 @@ let update
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;
+
+  match Hashtbl.find game.map player.curr_island with 
+  | Some neighbors -> if (List.mem neighbors next_island ~equal:Island.equal)
+    |None ->
 ;;
 
 (* Functions needed: - When player answers question, check answer, update

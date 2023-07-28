@@ -6,3 +6,4 @@ type t =
   ; question : Question.Question.t
   ; color : int * int * int
   }
+[@@deriving sexp, compare]
