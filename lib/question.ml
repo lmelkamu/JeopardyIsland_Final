@@ -25,7 +25,7 @@ let parse_label (label : label) : Questions.t =
   Jsonaf.parse label |> Or_error.ok_exn |> Questions.t_of_jsonaf
 ;;
 
-let get_questions number : label Deferred.t =
+let get_questions number : Questions.t Deferred.t =
   let%bind _, body =
     Cohttp_async.Client.get
       (Uri.of_string
@@ -33,7 +33,28 @@ let get_questions number : label Deferred.t =
             "https://opentdb.com/api.php?amount="
             (Int.to_string number)))
   in
-  Body.to_string body
+  let%bind response = Body.to_string body in
+  return (parse_label response)
+;;
+
+let is_correct (question : Question.t) (answer : string) : bool =
+  String.equal question.correct_answer answer
+;;
+
+let question_command =
+  let open Command.Let_syntax in
+  Command.async
+    ~summary:"parse a question api to locate "
+    (let%map_open () = return () in
+     fun () ->
+       let%map.Deferred response = get_questions 1 in
+       (* print_s [%message (response : string)]; *)
+       List.iter response.results ~f:(fun result ->
+         print_s
+           [%message
+             (result.question : string)
+               (result.correct_answer : string)
+               (result.incorrect_answers : string list)]))
 ;;
 
 let%expect_test _ =
@@ -55,22 +76,4 @@ let%expect_test _ =
          (incorrect_answers
           ("&quot;Dead End in Tokyo&quot;" "&quot;Raise Your Flag&quot;"
            "&quot;Out of Control&quot;"))))))) |}]
-;;
-
-let question_command =
-  let open Command.Let_syntax in
-  Command.async
-    ~summary:"parse a question api to locate "
-    (let%map_open () = return () in
-     fun () ->
-       let%map.Deferred response = get_questions 1 in
-       (* print_s [%message (response : string)]; *)
-       let json = Jsonaf.parse response |> Or_error.ok_exn in
-       let questions = Questions.t_of_jsonaf json in
-       List.iter questions.results ~f:(fun result ->
-         print_s
-           [%message
-             (result.question : string)
-               (result.correct_answer : string)
-               (result.incorrect_answers : string list)]))
 ;;

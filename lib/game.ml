@@ -1,4 +1,5 @@
 open! Core
+open Async
 
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
@@ -111,17 +112,31 @@ let create game =
       in
       planet, x, y)
   in
+  let%bind questions = Question.get_questions size in
+  let questions = questions.results in
   let islands =
-    List.map nodes ~f:(fun (planet, x, y) ->
+    List.mapi nodes ~f:(fun idx (planet, x, y) ->
       { Island.name = planet
       ; position = x, y
-      ; question = ""
+      ; question = List.nth_exn questions idx
       ; color = 0, 0, 0
       })
   in
   game.islands <- islands;
   create_graph ~graph ~nodes ~distance:1.0;
-  Dot.output_graph (Out_channel.create "map.dot") graph
+  Dot.output_graph (Out_channel.create "map.dot") graph;
+  return ()
+;;
+
+let update
+  (game : t)
+  (player : Player.t)
+  (question : Question.Question.t)
+  (answer : string)
+  =
+  if Question.is_correct question answer
+  then player.points <- player.points + 3;
+  player.curr_island <- List.nth_exn game.islands 2
 ;;
 
 (* Functions needed: - When player answers question, check answer, update
@@ -129,7 +144,7 @@ let create game =
 
 let game_command =
   let open Command.Let_syntax in
-  Command.basic
+  Command.async
     ~summary:"Run game"
     [%map_open
       let level =
