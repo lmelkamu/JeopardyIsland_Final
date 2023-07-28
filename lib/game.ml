@@ -39,6 +39,7 @@ type t =
       Game_state.t *)
     difficulty : Level.t
   ; mutable islands : Island.t list
+  ; mutable map: (Island.t, Island.t list) Hashtbl.t 
   }
 
 module My_components = Graph.Components.Make (G)
@@ -68,7 +69,7 @@ let create_graph ~graph ~nodes ~(distance : float) =
   else ()
 ;;
 
-(*Initialized a game w/ the islands and outputs a graph as the*)
+(*Initialized a game w/ the islands and outputs a graph*)
 let create game =
   let graph = G.create () in
   let size, bound =
@@ -128,15 +129,18 @@ let create game =
   return ()
 ;;
 
+(* updates game state when player answer a question
+   - checks answer, updates score
+   - moves player to next island
+   - updates island as visited *)
 let update
   (game : t)
-  (player : Player.t)
+  (player : Player.t) (*once player is added to game, remove*)
   (question : Question.Question.t)
-  (answer : string)
+  (answer : string) (next_island: Island.t)
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;
-  player.curr_island <- List.nth_exn game.islands 2
 ;;
 
 (* Functions needed: - When player answers question, check answer, update
@@ -156,6 +160,7 @@ let game_command =
                Game_state.Game_continues island *)
             difficulty = level
           ; islands = []
+          ;map = Hashtbl.create ()
           }
         in
         create game]
