@@ -73,6 +73,11 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   else ()
 ;;
 
+module Position = struct
+  type t = (int * int)
+end
+
+
 (*Initialized a game w/ the islands and outputs a graph*)
 let create game =
   let graph = G.create () in
@@ -105,6 +110,9 @@ let create game =
     ; "Oberon"
     ]
   in
+
+  let already_seen = Hash_set.create in 
+
   let nodes =
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
@@ -141,10 +149,16 @@ let update
   (game : t)
   (player : Player.t) (*once player is added to game, remove*)
   (question : Question.Question.t)
+<<<<<<< HEAD
   (answer : string)
+=======
+  (answer : string) 
+  (next_island: Island.t)
+>>>>>>> 385c49d (starting graphics)
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;
+
 ;;
 
 (* Functions needed: - When player answers question, check answer, update
