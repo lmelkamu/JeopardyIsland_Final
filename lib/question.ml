@@ -40,8 +40,7 @@ let%expect_test _ =
   let json_str =
     {|{"response_code":0,"results":[{"category":"General Knowledge","type":"multiple","difficulty":"medium","question":"What is the currency of Poland?","correct_answer":"Z\u0142oty","incorrect_answers":["Ruble","Euro","Krone"]},{"category":"Entertainment: Music","type":"multiple","difficulty":"medium","question":"Which song made by MAN WITH A MISSION was used as the opening for the anime &quot;Log Horizon&quot;?","correct_answer":"&quot;Database&quot;","incorrect_answers":["&quot;Dead End in Tokyo&quot;","&quot;Raise Your Flag&quot;","&quot;Out of Control&quot;"]}]}|}
   in
-  let json = Jsonaf.parse json_str |> Or_error.ok_exn in
-  let questions = Questions.t_of_jsonaf json in
+  let questions = parse_label json_str in
   print_s [%message (questions : Questions.t)];
   return
     [%expect
