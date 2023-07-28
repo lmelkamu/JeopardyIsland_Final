@@ -10,7 +10,7 @@ module Question = struct
     ; correct_answer : string
     ; incorrect_answers : string list
     }
-  [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
+  [@@deriving jsonaf, sexp, hash, compare] [@@jsonaf.allow_extra_fields]
 end
 
 module Questions = struct

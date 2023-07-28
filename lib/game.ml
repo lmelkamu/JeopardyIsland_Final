@@ -39,12 +39,12 @@ type t =
       Game_state.t *)
     difficulty : Level.t
   ; mutable islands : Island.t list
-  ; mutable map: (Island.t, Island.t list) Hashtbl.t 
+  ; map: (Island.t, Island.t list) Hashtbl.t 
   }
 
 module My_components = Graph.Components.Make (G)
 
-let create_graph ~graph ~nodes ~(distance : float) =
+let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   List.iter nodes ~f:(fun (node_1, x1, y1) ->
     List.iter nodes ~f:(fun (node_2, x2, y2) ->
       if String.equal node_1 node_2
@@ -55,7 +55,11 @@ let create_graph ~graph ~nodes ~(distance : float) =
             (Int.pow (x2 - x1) 2 + Int.pow (y2 - y1) 2 |> Float.of_int)
         in
         if Float.( < ) pythagoreum distance
-        then G.add_edge graph node_1 node_2)));
+        then (G.add_edge graph node_1 node_2;
+        let island_1 = List.find_exn game.islands ~f:(fun island -> String.equal node_1 island.name) in 
+        let island_2 = List.find_exn game.islands ~f:(fun island -> String.equal node_2 island.name) in 
+
+        Hashtbl.update game.map island_1 ~f:(fun list -> match list with |None -> [island_2] |Some nodes -> nodes @ [island_2])))));
   let islands = My_components.scc_list graph in
   let island_count = List.length islands in
   if island_count > 1
@@ -124,7 +128,7 @@ let create game =
       })
   in
   game.islands <- islands;
-  create_graph ~graph ~nodes ~distance:1.0;
+  create_graph ~graph ~nodes ~distance:1.0 ~game;
   Dot.output_graph (Out_channel.create "map.dot") graph;
   return ()
 ;;
@@ -137,14 +141,10 @@ let update
   (game : t)
   (player : Player.t) (*once player is added to game, remove*)
   (question : Question.Question.t)
-  (answer : string) (next_island: Island.t)
+  (answer : string)
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;
-
-  match Hashtbl.find game.map player.curr_island with 
-  | Some neighbors -> if (List.mem neighbors next_island ~equal:Island.equal)
-    |None ->
 ;;
 
 (* Functions needed: - When player answers question, check answer, update
@@ -164,7 +164,7 @@ let game_command =
                Game_state.Game_continues island *)
             difficulty = level
           ; islands = []
-          ;map = Hashtbl.create ()
+          ; map = Island.Table.create ()
           }
         in
         create game]

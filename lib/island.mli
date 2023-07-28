@@ -6,3 +6,5 @@ type t =
   ; question : Question.Question.t
   ; color : int * int * int
   }
+
+include Hashable.S with type t := t

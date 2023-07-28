@@ -11,6 +11,7 @@ module Question : sig
     ; correct_answer : string
     ; incorrect_answers : string list
     }
+  [@@deriving jsonaf, sexp, hash, compare]
 end
 
 module Questions : sig
