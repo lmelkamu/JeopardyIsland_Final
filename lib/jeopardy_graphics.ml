@@ -67,7 +67,7 @@ let draw_play_area () =
 let draw_islands game =
   let islands = game.islands in
   List.iter islands ~f:(fun island ->
-    let x, y = island.position in let adjusted_x = 
+    let x, y = island.position in
     draw_circle x y ~color:Colors.red)
 ;;
 
