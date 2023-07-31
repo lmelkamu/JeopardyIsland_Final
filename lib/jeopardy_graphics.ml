@@ -144,7 +144,14 @@ let draw_initial_board game =
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
   Graphics.fill_rect (0) (play_area_height - 100) (play_area_width) (header_height);
-   
+  Graphics.moveto (0) (play_area_height - 70);
+  Graphics.draw_string ("A:");
+  Graphics.moveto (play_area_width / 4) (play_area_height - 70);
+  Graphics.draw_string ("B:");
+  Graphics.moveto (play_area_width / 2) (play_area_height - 70);
+  Graphics.draw_string ("C:");
+  Graphics.moveto (play_area_width * 3 / 4) (play_area_height - 70);
+  Graphics.draw_string ("D:");
   
 
 ;;
