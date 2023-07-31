@@ -73,19 +73,14 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   else ()
 ;;
 
-module Position = struct
-  type t = (int * int)
-end
-
-
 (*Initialized a game w/ the islands and outputs a graph*)
 let create game =
   let graph = G.create () in
   let size, bound =
     match game.difficulty with
-    | Level.Easy -> 10, 9
-    | Level.Medium -> 15, 10
-    | Level.Hard -> 20, 11
+    | Level.Easy -> 10, 100
+    | Level.Medium -> 15, 150
+    | Level.Hard -> 20, 200
   in
   let solar_system =
     [ "Neptune"
@@ -111,8 +106,6 @@ let create game =
     ]
   in
 
-  let already_seen = Hash_set.create in 
-
   let nodes =
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
@@ -136,7 +129,7 @@ let create game =
       })
   in
   game.islands <- islands;
-  create_graph ~graph ~nodes ~distance:1.0 ~game;
+  create_graph ~graph ~nodes ~distance:10.0;
   Dot.output_graph (Out_channel.create "map.dot") graph;
   return ()
 ;;
@@ -149,12 +142,8 @@ let update
   (game : t)
   (player : Player.t) (*once player is added to game, remove*)
   (question : Question.Question.t)
-<<<<<<< HEAD
-  (answer : string)
-=======
   (answer : string) 
   (next_island: Island.t)
->>>>>>> 385c49d (starting graphics)
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;

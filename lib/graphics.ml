@@ -18,8 +18,10 @@ module Constants = struct
   let play_area_height = 600. *. scaling_factor |> Float.iround_down_exn
   let header_height = 75. *. scaling_factor |> Float.iround_down_exn
   let play_area_width = 675. *. scaling_factor |> Float.iround_down_exn
-  (* let block_size = 27. *. scaling_factor |> Float.iround_down_exn *)
+  let circle_size = 27. *. scaling_factor |> Float.iround_down_exn
 end
+
+
 
 (* let only_one : bool ref = ref false
 
