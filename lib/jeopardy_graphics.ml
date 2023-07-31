@@ -109,7 +109,7 @@ let init_exn () =
   draw_block ~color:Colors.head_color snake_head
 ;; *)
 
-(* let render game =
+let render game =
   (* We want double-buffering. See
      https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for
      more info!
@@ -134,4 +134,4 @@ let init_exn () =
 
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
-;; *)
+;;

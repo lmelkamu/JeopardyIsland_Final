@@ -1,5 +1,6 @@
 open! Core
 open Async
+open JeopardyIsland_Final
 
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
@@ -18,6 +19,15 @@ module Level = struct
   include T
 
   let arg : t Command.Arg_type.t = Command.Arg_type.enumerated (module T)
+end
+
+module Game_State = struct
+  type t = 
+  |Start 
+  |Game_over 
+  |Answering of Player.t
+  |Buzzing
+  |Selecting of Player.t
 end
 
 module G = Graph.Imperative.Graph.Concrete (String)
@@ -151,8 +161,14 @@ let update
 
 ;;
 
-(* Functions needed: - When player answers question, check answer, update
-   score, and move players forward in map - Island color update *)
+let handle_key (game:t) key =
+  match game.game_state with 
+  |Start -> ()
+  |Answering player -> ()
+  |Buzzing -> ()
+  |Selecting player -> ()
+  |_ -> ();;
+
 
 let game_command =
   let open Command.Let_syntax in
