@@ -20,14 +20,13 @@ let handle_keys (game : Game.t) ~game_over =
   every ~stop:game_over 0.001 ~f:(fun () ->
     match Jeopardy_graphics.read_key () with
     | None -> ()
-    | Some key ->
-      Game.handle_key game key;
-      Jeopardy_graphics.render game)
+    | Some key -> Game.handle_key game key
+    (* Jeopardy_graphics.render game) *))
 ;;
 
 let run () =
   let game = Jeopardy_graphics.init_exn () in
-  Jeopardy_graphics.render game;
+  Jeopardy_graphics.draw_initial_board game;
   let game_over = ref false in
   handle_keys game ~game_over
 ;;

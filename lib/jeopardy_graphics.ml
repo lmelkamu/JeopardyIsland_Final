@@ -1,15 +1,14 @@
 open! Core
 
-
 module Colors = struct
   let black = Graphics.rgb 000 000 000
-  let green = Graphics.rgb 000 255 000
+
+  (* let green = Graphics.rgb 000 255 000 *)
   let head_color = Graphics.rgb 100 100 125
   let red = Graphics.rgb 255 000 000
-  let gold = Graphics.rgb 255 223 0
-  let game_in_progress = Graphics.rgb 100 100 200
-  let game_lost = Graphics.rgb 200 100 100
-  let game_won = Graphics.rgb 100 200 100
+  (* let gold = Graphics.rgb 255 223 0 let game_in_progress = Graphics.rgb
+     100 100 200 let game_lost = Graphics.rgb 200 100 100 let game_won =
+     Graphics.rgb 100 200 100 *)
 end
 
 (* These constants are optimized for running on a low-resolution screen. Feel
@@ -22,30 +21,18 @@ module Constants = struct
   let circle_size = 27. *. scaling_factor |> Float.iround_down_exn
 end
 
+(* let draw_header ~game_state score = let open Constants in let header_color
+   = match (game_state : Game_state.t) with | In_progress ->
+   Colors.game_in_progress | Game_over _ -> Colors.game_lost | Win ->
+   Colors.game_won in Graphics.set_color header_color; Graphics.fill_rect 0
+   play_area_height play_area_width header_height; let header_text =
+   Game_state.to_string game_state in Graphics.set_color Colors.black;
+   Graphics.set_text_size 20; Graphics.moveto 0 (play_area_height + 25);
+   Graphics.draw_string (Printf.sprintf " %s" header_text); Graphics.moveto
+   (play_area_width - 75) (play_area_height + 25); Graphics.draw_string
+   (Printf.sprintf "Score: %d" score) ;; *)
 
-(* let draw_header ~game_state score =
-  let open Constants in
-  let header_color =
-    match (game_state : Game_state.t) with
-    | In_progress -> Colors.game_in_progress
-    | Game_over _ -> Colors.game_lost
-    | Win -> Colors.game_won
-  in
-  Graphics.set_color header_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  let header_text = Game_state.to_string game_state in
-  Graphics.set_color Colors.black;
-  Graphics.set_text_size 20;
-  Graphics.moveto 0 (play_area_height + 25);
-  Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 75) (play_area_height + 25);
-  Graphics.draw_string (Printf.sprintf "Score: %d" score)
-;; *)
-
-
-
-
-(* let only_one : bool ref = ref false
+let only_one : bool ref = ref false
 
 let init_exn () =
   let open Constants in
@@ -58,19 +45,18 @@ let init_exn () =
        " %dx%d"
        (play_area_height + header_height)
        play_area_width);
-  let height = play_area_height / block_size in
-  let width = play_area_width / block_size in
+  let height = play_area_height / circle_size in
+  let width = play_area_width / circle_size in
   Game.create ~height ~width ~initial_snake_length:3
-;; *)
+;;
 
-(* let draw_block { Position.row; col } ~color =
+let draw_circle (row : int) (col : int) ~color =
   let open Constants in
-  let col = col * block_size in
-  let row = row * block_size in
+  let col = col * circle_size in
+  let row = row * circle_size in
   Graphics.set_color color;
-  Graphics.fill_rect (col + 1) (row + 1) (block_size - 1) (block_size - 1)
-;; *)
-
+  Graphics.fill_rect (col + 1) (row + 1) (circle_size - 1) (circle_size - 1)
+;;
 
 let draw_play_area () =
   let open Constants in
@@ -78,80 +64,69 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
-(* let draw_apple apple =
-  let apple_position = Apple.position apple in
-  draw_block apple_position ~color:(Colors.apple_color apple)
-;; *)
-
-(* let draw_snake snake_head snake_tail =
-  List.iter snake_tail ~f:(draw_block ~color:Colors.green);
-  (* Snake head is a different color *)
-  draw_block ~color:Colors.head_color snake_head
-;; *)
-
-(* let render game =
-  (* We want double-buffering. See
-     https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for
-     more info!
-
-     So, we set [display_mode] to false, draw to the background buffer, set
-     [display_mode] to true and then synchronize. This guarantees that there
-     won't be flickering! *)
-  Graphics.display_mode false;
-  let snake = Game.snake game in
-  let snake_two = Game.snake_two game in
-  let apple = Game.apple game in
-  let game_state = Game.game_state game in
-  let score = Game.score game in
-  draw_header ~game_state score;
-  draw_play_area ();
-  draw_apple apple;
-  draw_snake (Snake.head snake) (Snake.tail snake);
-  draw_snake (Snake.head snake_two) (Snake.tail snake_two);
-  Graphics.display_mode true;
-  Graphics.synchronize ()
+let draw_islands game =
+  let islands = game.islands in
+  List.iter islands ~f:(fun island ->
+    let x, y = island.position in let adjusted_x = 
+    draw_circle x y ~color:Colors.red)
 ;;
 
+(* let draw_apple apple = let apple_position = Apple.position apple in
+   draw_block apple_position ~color:(Colors.apple_color apple) ;; *)
 
+(* let draw_snake snake_head snake_tail = List.iter snake_tail ~f:(draw_block
+   ~color:Colors.green); (* Snake head is a different color *) draw_block
+   ~color:Colors.head_color snake_head ;; *)
 
+(* let render game = (* We want double-buffering. See
+   https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for more
+   info!
+
+   So, we set [display_mode] to false, draw to the background buffer, set
+   [display_mode] to true and then synchronize. This guarantees that there
+   won't be flickering! *) Graphics.display_mode false; let snake =
+   Game.snake game in let snake_two = Game.snake_two game in let apple =
+   Game.apple game in let game_state = Game.game_state game in let score =
+   Game.score game in draw_header ~game_state score; draw_play_area ();
+   draw_apple apple; draw_snake (Snake.head snake) (Snake.tail snake);
+   draw_snake (Snake.head snake_two) (Snake.tail snake_two);
+   Graphics.display_mode true; Graphics.synchronize () ;; *)
 
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
-;; *)
+;;
 
-
-let draw_initial_board game = 
+let draw_initial_board (game : Game.t) =
   let open Constants in
-  let player_one = Game.player_one game in 
-  let player_two = Game.player_two game in 
-  let player_one_score = Player.points player_one in 
-  let player_two_score = Player.points player_two in 
-  let game_state = Game.game_state game in 
+  let player_one = game.player_one in
+  let player_two = game.player_two in
+  let player_one_score = player_one.points in
+  let player_two_score = player_two.points in
+  let game_state = game.game_state in
   Graphics.set_color Colors.black;
   Graphics.set_text_size 20;
   (* box 1: play area *)
   draw_play_area ();
+  draw_islands game;
   (* box 2: top header *)
   Graphics.display_mode false;
   Graphics.set_color Colors.head_color;
   Graphics.fill_rect 0 play_area_height play_area_width header_height;
   Graphics.moveto (play_area_width / 2) (header_height - 20);
-  let header_text = Game_state.to_string game_state in
+  let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto (play_area_width - 75) 25;
   Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
   Graphics.moveto 75 25;
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
-  Graphics.fill_rect (0) (play_area_height - 100) (play_area_width) (header_height);
-  Graphics.moveto (0) (play_area_height - 70);
-  Graphics.draw_string ("A:");
+  Graphics.fill_rect 0 (play_area_height - 100) play_area_width header_height;
+  Graphics.moveto 0 (play_area_height - 70);
+  Graphics.draw_string "A:";
   Graphics.moveto (play_area_width / 4) (play_area_height - 70);
-  Graphics.draw_string ("B:");
+  Graphics.draw_string "B:";
   Graphics.moveto (play_area_width / 2) (play_area_height - 70);
-  Graphics.draw_string ("C:");
+  Graphics.draw_string "C:";
   Graphics.moveto (play_area_width * 3 / 4) (play_area_height - 70);
-  Graphics.draw_string ("D:");
-  
-
+  Graphics.draw_string "D:"
 ;;

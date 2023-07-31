@@ -184,7 +184,7 @@ let update
   then player.points <- player.points + 3;
 ;;
 
-let handle_key (game:t) key =
+let handle_key (game:t) key  =
   match game.game_state with 
   |Start -> ()
   (* |Answering player -> ()
@@ -193,7 +193,7 @@ let handle_key (game:t) key =
   |_ -> ();;
 
 
-let game_command =
+(* let game_command =
   let open Command.Let_syntax in
   Command.async
     ~summary:"Run game"
@@ -211,7 +211,7 @@ let game_command =
           }
         in
         create game]
-;;
+;; *)
 
 (* let%expect_test "graph" = let game = { player_one ; player_two ;
    game_state = Game_state.Game_continues island ; difficulty = level } in
