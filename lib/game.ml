@@ -35,11 +35,12 @@ module Dot = Graph.Graphviz.Dot (struct
   end)
 
 type t =
-  { (*player_one : Player.t ; player_two : Player.t ; game_state :
-      Game_state.t *)
-    difficulty : Level.t
-  ; mutable islands : Island.t list
-  ; map: (Island.t, Island.t list) Hashtbl.t 
+  { player_one : Player.t ; 
+    player_two : Player.t ; 
+    game_state : Game_state.t ;
+    difficulty : Level.t ; 
+    mutable islands : Island.t list ; 
+    map : (Island.t, Island.t list) Hashtbl.t 
   }
 
 module My_components = Graph.Components.Make (G)

@@ -1,5 +1,6 @@
 open! Core
 
+
 module Colors = struct
   let black = Graphics.rgb 000 000 000
   let green = Graphics.rgb 000 255 000
@@ -15,11 +16,52 @@ end
    free to increase the scaling factor to tweak! *)
 module Constants = struct
   let scaling_factor = 1.
-  let play_area_height = 600. *. scaling_factor |> Float.iround_down_exn
-  let header_height = 75. *. scaling_factor |> Float.iround_down_exn
-  let play_area_width = 675. *. scaling_factor |> Float.iround_down_exn
+  let play_area_height = 800. *. scaling_factor |> Float.iround_down_exn
+  let header_height = 100. *. scaling_factor |> Float.iround_down_exn
+  let play_area_width = 1000. *. scaling_factor |> Float.iround_down_exn
   let circle_size = 27. *. scaling_factor |> Float.iround_down_exn
 end
+
+let draw_initial_board game = 
+  let open Constants in
+  let player_one = Game.player_one game in 
+  let player_two = Game.player_two game in 
+  let game_state = Game.game_state game in 
+  Graphics.display_mode false;
+  Graphics.set_color head_color;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  let header_text = Game_state.to_string game_state in
+  Graphics.set_color Colors.black;
+  Graphics.set_text_size 20;
+  (* box 1: top header, box 2: game area, box 3: question answers *)
+  Graphics.moveto  25;
+  Graphics.draw_string (Printf.sprintf " %s" header_text);
+  Graphics.moveto (play_area_width - 75) (play_area_height + 25);
+  Graphics.draw_string (Printf.sprintf "Score: %d" score)
+
+
+;;
+
+
+(* let draw_header ~game_state score =
+  let open Constants in
+  let header_color =
+    match (game_state : Game_state.t) with
+    | In_progress -> Colors.game_in_progress
+    | Game_over _ -> Colors.game_lost
+    | Win -> Colors.game_won
+  in
+  Graphics.set_color header_color;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  let header_text = Game_state.to_string game_state in
+  Graphics.set_color Colors.black;
+  Graphics.set_text_size 20;
+  Graphics.moveto 0 (play_area_height + 25);
+  Graphics.draw_string (Printf.sprintf " %s" header_text);
+  Graphics.moveto (play_area_width - 75) (play_area_height + 25);
+  Graphics.draw_string (Printf.sprintf "Score: %d" score)
+;; *)
+
 
 
 
@@ -49,24 +91,6 @@ let init_exn () =
   Graphics.fill_rect (col + 1) (row + 1) (block_size - 1) (block_size - 1)
 ;; *)
 
-(* let draw_header ~game_state score =
-  let open Constants in
-  let header_color =
-    match (game_state : Game_state.t) with
-    | In_progress -> Colors.game_in_progress
-    | Game_over _ -> Colors.game_lost
-    | Win -> Colors.game_won
-  in
-  Graphics.set_color header_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  let header_text = Game_state.to_string game_state in
-  Graphics.set_color Colors.black;
-  Graphics.set_text_size 20;
-  Graphics.moveto 0 (play_area_height + 25);
-  Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 75) (play_area_height + 25);
-  Graphics.draw_string (Printf.sprintf "Score: %d" score)
-;; *)
 
 (* let draw_play_area () =
   let open Constants in
