@@ -4,28 +4,60 @@ open! Cohttp_async
 open! Jsonaf.Export
 open! Ppxlib
 
+module For_parsing = struct
+  module Question = struct
+    type t =
+      { question : string
+      ; correct_answer : string
+      ; incorrect_answers : string list
+      }
+    [@@deriving jsonaf, sexp, hash, compare] [@@jsonaf.allow_extra_fields]
+  end
+
+  module Questions = struct
+    type t = { results : Question.t list }
+    [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
+  end
+end
+
 module Question = struct
   type t =
     { question : string
-    ; correct_answer : string
-    ; incorrect_answers : string list
+    ; answers : string list
+    ; correct_answer : char
     }
-  [@@deriving jsonaf, sexp, hash, compare] [@@jsonaf.allow_extra_fields]
+
+  let of_for_parsing_question (question : For_parsing.Question.t) : t =
+    let answers = question.incorrect_answers @ [ question.correct_answer ] in
+    let index, _ =
+      List.findi_exn answers ~f:(fun _idx answer ->
+        String.equal answer question.correct_answer)
+    in
+    let correct_char =
+      match index with 0 -> 'a' | 1 -> 'b' | 2 -> 'c' | 3 -> 'd' | _ -> ' '
+    in
+    { question = question.question; answers; correct_answer = correct_char }
+  ;;
 end
 
-module Questions = struct
-  type t = { results : Question.t list }
-  [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
-end
+type t = Question.t list
+
+let of_for_parsing (parsing : For_parsing.Questions.t) : t =
+  List.map parsing.results ~f:(fun question ->
+    Question.of_for_parsing_question question)
+;;
 
 (* things we need to get set up: pull from an API ORRRR, we need a sufficient
    question bank with quetsions and plausible answers *)
 
-let parse_label (label : label) : Questions.t =
-  Jsonaf.parse label |> Or_error.ok_exn |> Questions.t_of_jsonaf
+let parse_label (label : label) : t =
+  Jsonaf.parse label
+  |> Or_error.ok_exn
+  |> For_parsing.Questions.t_of_jsonaf
+  |> of_for_parsing
 ;;
 
-let get_questions number : Questions.t Deferred.t =
+let get_questions number : t Deferred.t =
   let%bind _, body =
     Cohttp_async.Client.get
       (Uri.of_string
@@ -37,8 +69,8 @@ let get_questions number : Questions.t Deferred.t =
   return (parse_label response)
 ;;
 
-let is_correct (question : Question.t) (answer : string) : bool =
-  String.equal question.correct_answer answer
+let is_correct (question : Question.t) (answer : char) : bool =
+  Char.equal question.correct_answer answer
 ;;
 
 let question_command =

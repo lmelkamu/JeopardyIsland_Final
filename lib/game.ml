@@ -28,6 +28,7 @@ module Game_state = struct
   |Answering of Player.t
   |Buzzing
   |Selecting of Player.t
+
 end
 
 
@@ -52,8 +53,10 @@ type t =
     game_state : Game_state.t ;
     difficulty : Level.t ; 
     mutable islands : Island.t list ; 
-    map : (Island.t, Island.t list) Hashtbl.t 
+    (* map : (Island.t, Island.t list) Hashtbl.t  *)
+    mutable questions: Question.Question.t list
   }
+
 
   let update_start key = 
     match key with 
@@ -62,16 +65,17 @@ type t =
   ;;
   let update_buzzing (game:t) key = 
     match key with 
-    |'p' -> Some Game_state.Start
-    |'q' -> Some Game_state.Start
+    |'p' -> Some (Game_state.Answering game.player_one)
+    |'q' -> Some (Game_state.Answering game.player_two)
     | _ -> None;;
-  let update_answer key = 
-    match key with 
-    |'a'-> ()
-    |'b'-> ()
-    |'c'-> ()
-    |'d' -> ()
-    |_ -> ();;
+
+  let update_answer (game:t) key = 
+    (match key with 
+    |'a'  
+    |'b'
+    |'c'
+    |'d' -> if Question.is_correct (List.hd_exn game.questions) key then Some (Game_state.Selecting game.player_one)
+    |_ -> ());;
   
   let update_selecting key = 
     match key with 
@@ -79,7 +83,7 @@ type t =
     |_ -> ();;
 module My_components = Graph.Components.Make (G)
 
-let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
+(* let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   List.iter nodes ~f:(fun (node_1, x1, y1) ->
     List.iter nodes ~f:(fun (node_2, x2, y2) ->
       if String.equal node_1 node_2
@@ -167,7 +171,7 @@ let create game =
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
   return ()
-;;
+;; *)
 
 (* updates game state when player answer a question
    - checks answer, updates score
@@ -187,9 +191,9 @@ let update
 let handle_key (game:t) key  =
   match game.game_state with 
   |Start -> ()
-  (* |Answering player -> ()
+  |Answering player -> ()
   |Buzzing -> ()
-  |Selecting player -> () *)
+  |Selecting player -> ()
   |_ -> ();;
 
 
