@@ -1,5 +1,4 @@
 open! Core
-open JeopardyIsland_Final
 
 (* This is the core logic that actually runs the game. We have implemented
    all of this for you, but feel free to read this file as a reference. *)
@@ -19,16 +18,16 @@ let every seconds ~f ~stop =
 
 let handle_keys (game : Game.t) ~game_over =
   every ~stop:game_over 0.001 ~f:(fun () ->
-    match Graphics.read_key () with
+    match Jeopardy_graphics.read_key () with
     | None -> ()
     | Some key ->
       Game.handle_key game key;
-      Snake_graphics.render game)
+      Jeopardy_graphics.render game)
 ;;
 
 let run () =
-  let game = Snake_graphics.init_exn () in
-  Snake_graphics.render game;
+  let game = Jeopardy_graphics.init_exn () in
+  Jeopardy_graphics.render game;
   let game_over = ref false in
   handle_keys game ~game_over
 ;;

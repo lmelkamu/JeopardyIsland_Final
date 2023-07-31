@@ -1,6 +1,6 @@
 open! Core
 open Async
-open JeopardyIsland_Final
+
 
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
@@ -21,7 +21,7 @@ module Level = struct
   let arg : t Command.Arg_type.t = Command.Arg_type.enumerated (module T)
 end
 
-module Game_State = struct
+module Game_state = struct
   type t = 
   |Start 
   |Game_over 
@@ -29,6 +29,8 @@ module Game_State = struct
   |Buzzing
   |Selecting of Player.t
 end
+
+
 
 module G = Graph.Imperative.Graph.Concrete (String)
 
@@ -53,6 +55,28 @@ type t =
     map : (Island.t, Island.t list) Hashtbl.t 
   }
 
+  let update_start key = 
+    match key with 
+    |' ' -> Some Game_state.Buzzing
+    |_ -> None
+  ;;
+  let update_buzzing (game:t) key = 
+    match key with 
+    |'p' -> Some Game_state.Start
+    |'q' -> Some Game_state.Start
+    | _ -> None;;
+  let update_answer key = 
+    match key with 
+    |'a'-> ()
+    |'b'-> ()
+    |'c'-> ()
+    |'d' -> ()
+    |_ -> ();;
+  
+  let update_selecting key = 
+    match key with 
+    |'t' -> () 
+    |_ -> ();;
 module My_components = Graph.Components.Make (G)
 
 let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
@@ -140,7 +164,7 @@ let create game =
       })
   in
   game.islands <- islands;
-  create_graph ~graph ~nodes ~distance:10.0;
+  (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
   return ()
 ;;
@@ -158,15 +182,14 @@ let update
   =
   if Question.is_correct question answer
   then player.points <- player.points + 3;
-
 ;;
 
 let handle_key (game:t) key =
   match game.game_state with 
   |Start -> ()
-  |Answering player -> ()
+  (* |Answering player -> ()
   |Buzzing -> ()
-  |Selecting player -> ()
+  |Selecting player -> () *)
   |_ -> ();;
 
 
@@ -178,7 +201,7 @@ let game_command =
       let level =
         flag "level" (required Level.arg) ~doc:"how hard game is"
       in
-      fun () ->
+      fun () -> 
         let game =
           { (* player_one ; player_two ( ; game_state =
                Game_state.Game_continues island *)
