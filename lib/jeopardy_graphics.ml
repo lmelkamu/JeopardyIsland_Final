@@ -22,26 +22,6 @@ module Constants = struct
   let circle_size = 27. *. scaling_factor |> Float.iround_down_exn
 end
 
-let draw_initial_board game = 
-  let open Constants in
-  let player_one = Game.player_one game in 
-  let player_two = Game.player_two game in 
-  let game_state = Game.game_state game in 
-  Graphics.display_mode false;
-  Graphics.set_color head_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  let header_text = Game_state.to_string game_state in
-  Graphics.set_color Colors.black;
-  Graphics.set_text_size 20;
-  (* box 1: top header, box 2: game area, box 3: question answers *)
-  Graphics.moveto  25;
-  Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 75) (play_area_height + 25);
-  Graphics.draw_string (Printf.sprintf "Score: %d" score)
-
-
-;;
-
 
 (* let draw_header ~game_state score =
   let open Constants in
@@ -92,11 +72,11 @@ let init_exn () =
 ;; *)
 
 
-(* let draw_play_area () =
+let draw_play_area () =
   let open Constants in
   Graphics.set_color Colors.black;
   Graphics.fill_rect 0 0 play_area_width play_area_height
-;; *)
+;;
 
 (* let draw_apple apple =
   let apple_position = Apple.position apple in
@@ -109,7 +89,7 @@ let init_exn () =
   draw_block ~color:Colors.head_color snake_head
 ;; *)
 
-let render game =
+(* let render game =
   (* We want double-buffering. See
      https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for
      more info!
@@ -132,6 +112,39 @@ let render game =
   Graphics.synchronize ()
 ;;
 
+
+
+
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
+;; *)
+
+
+let draw_initial_board game = 
+  let open Constants in
+  let player_one = Game.player_one game in 
+  let player_two = Game.player_two game in 
+  let player_one_score = Player.points player_one in 
+  let player_two_score = Player.points player_two in 
+  let game_state = Game.game_state game in 
+  Graphics.set_color Colors.black;
+  Graphics.set_text_size 20;
+  (* box 1: play area *)
+  draw_play_area ();
+  (* box 2: top header *)
+  Graphics.display_mode false;
+  Graphics.set_color Colors.head_color;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  Graphics.moveto (play_area_width / 2) (header_height - 20);
+  let header_text = Game_state.to_string game_state in
+  Graphics.draw_string (Printf.sprintf " %s" header_text);
+  Graphics.moveto (play_area_width - 75) 25;
+  Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
+  Graphics.moveto 75 25;
+  Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
+  (* box 3: bottom box *)
+  Graphics.fill_rect (0) (play_area_height - 100) (play_area_width) (header_height);
+   
+  
+
 ;;
