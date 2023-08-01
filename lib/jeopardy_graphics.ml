@@ -55,7 +55,7 @@ let draw_circle (row : int) (col : int) ~color =
   let col = col * circle_size in
   let row = row * circle_size in
   Graphics.set_color color;
-  Graphics.fill_rect (col + 1) (row + 1) (circle_size - 1) (circle_size - 1)
+  Graphics.fill_circle (col + 1) (row + 1) (circle_size)
 ;;
 
 let draw_play_area () =
@@ -93,7 +93,18 @@ let draw_islands game =
    Graphics.display_mode true; Graphics.synchronize () ;; *)
 
 
-let draw_question 
+let draw_question (game: Game.t) =
+  let questions = game.questions in 
+  let question = List.hd_exn questions in 
+  Graphics.set_text_size 16;
+  Graphics.set_color Colors.head_color;
+  Graphics.fill_rect 700 (300) 200 300;
+  Graphics.moveto 700 300;
+  Graphics.draw_string (Printf.sprintf "Question: %s" question.question)
+  List.fold question.answers ~init:10  ~f:(fun x_adjusted answer -> Graphics.moveto x_adjusted (play_area_height - 70); in
+  Graphics.draw_string answer; x_adjusted + (play_area_width / 4))
+;;
+
 
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
@@ -131,5 +142,7 @@ let draw_initial_board (game : Game.t) =
   Graphics.moveto (play_area_width / 2) (play_area_height - 70);
   Graphics.draw_string "C:";
   Graphics.moveto (play_area_width * 3 / 4) (play_area_height - 70);
-  Graphics.draw_string "D:"
+  Graphics.draw_string "D:";
+  Graphics.display_mode true;
+  Graphics.synchronize ()
 ;;
