@@ -67,7 +67,7 @@ let draw_play_area () =
 let draw_islands game =
   let islands = game.islands in
   List.iter islands ~f:(fun island ->
-    let x, y = island.position in
+    let x, y = island.position in let adjusted_x = 
     draw_circle x y ~color:Colors.red)
 ;;
 
@@ -92,6 +92,9 @@ let draw_islands game =
    draw_snake (Snake.head snake_two) (Snake.tail snake_two);
    Graphics.display_mode true; Graphics.synchronize () ;; *)
 
+
+let draw_question 
+
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
 ;;
@@ -111,7 +114,7 @@ let draw_initial_board (game : Game.t) =
   (* box 2: top header *)
   Graphics.display_mode false;
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  Graphics.fill_rect 0 header_height play_area_width header_height;
   Graphics.moveto (play_area_width / 2) (header_height - 20);
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
@@ -120,7 +123,7 @@ let draw_initial_board (game : Game.t) =
   Graphics.moveto 75 25;
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
-  Graphics.fill_rect 0 (play_area_height - 100) play_area_width header_height;
+  Graphics.fill_rect 0 (play_area_height) play_area_width header_height;
   Graphics.moveto 0 (play_area_height - 70);
   Graphics.draw_string "A:";
   Graphics.moveto (play_area_width / 4) (play_area_height - 70);
