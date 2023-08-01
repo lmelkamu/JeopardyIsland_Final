@@ -28,7 +28,9 @@ module Question = struct
     }
 
   let of_for_parsing_question (question : For_parsing.Question.t) : t =
-    let answers = question.incorrect_answers @ [ question.correct_answer ] in
+    let answers =
+      List.permute (question.incorrect_answers @ [ question.correct_answer ])
+    in
     let index, _ =
       List.findi_exn answers ~f:(fun _idx answer ->
         String.equal answer question.correct_answer)
@@ -73,39 +75,28 @@ let is_correct (question : Question.t) (answer : char) : bool =
   Char.equal question.correct_answer answer
 ;;
 
-let question_command =
-  let open Command.Let_syntax in
-  Command.async
-    ~summary:"parse a question api to locate "
-    (let%map_open () = return () in
-     fun () ->
-       let%map.Deferred response = get_questions 1 in
-       (* print_s [%message (response : string)]; *)
-       List.iter response.results ~f:(fun result ->
-         print_s
-           [%message
-             (result.question : string)
-               (result.correct_answer : string)
-               (result.incorrect_answers : string list)]))
-;;
+(* let question_command = let open Command.Let_syntax in Command.async
+   ~summary:"parse a question api to locate " (let%map_open () = return () in
+   fun () -> let%map.Deferred response = get_questions 1 in (* print_s
+   [%message (response : string)]; *) List.iter response.results ~f:(fun
+   result -> print_s [%message (result.question : string)
+   (result.correct_answer : string) (result.incorrect_answers : string
+   list)])) ;; *)
 
-let%expect_test _ =
-  let json_str =
-    {|{"response_code":0,"results":[{"category":"General Knowledge","type":"multiple","difficulty":"medium","question":"What is the currency of Poland?","correct_answer":"Z\u0142oty","incorrect_answers":["Ruble","Euro","Krone"]},{"category":"Entertainment: Music","type":"multiple","difficulty":"medium","question":"Which song made by MAN WITH A MISSION was used as the opening for the anime &quot;Log Horizon&quot;?","correct_answer":"&quot;Database&quot;","incorrect_answers":["&quot;Dead End in Tokyo&quot;","&quot;Raise Your Flag&quot;","&quot;Out of Control&quot;"]}]}|}
-  in
-  let questions = parse_label json_str in
-  print_s [%message (questions : Questions.t)];
-  return
-    [%expect
-      {|
-    (questions
-     ((results
-       (((question "What is the currency of Poland?")
-         (correct_answer "Z\197\130oty") (incorrect_answers (Ruble Euro Krone)))
-        ((question
-          "Which song made by MAN WITH A MISSION was used as the opening for the anime &quot;Log Horizon&quot;?")
-         (correct_answer "&quot;Database&quot;")
-         (incorrect_answers
-          ("&quot;Dead End in Tokyo&quot;" "&quot;Raise Your Flag&quot;"
-           "&quot;Out of Control&quot;"))))))) |}]
-;;
+(* let%expect_test _ = let json_str =
+   {|{"response_code":0,"results":[{"category":"General
+   Knowledge","type":"multiple","difficulty":"medium","question":"What is the
+   currency of
+   Poland?","correct_answer":"Z\u0142oty","incorrect_answers":["Ruble","Euro","Krone"]},{"category":"Entertainment:
+   Music","type":"multiple","difficulty":"medium","question":"Which song made
+   by MAN WITH A MISSION was used as the opening for the anime &quot;Log
+   Horizon&quot;?","correct_answer":"&quot;Database&quot;","incorrect_answers":["&quot;Dead
+   End in Tokyo&quot;","&quot;Raise Your Flag&quot;","&quot;Out of
+   Control&quot;"]}]}|} in let questions = parse_label json_str in print_s
+   [%message (questions : t)]; return [%expect {| (questions ((results
+   (((question "What is the currency of Poland?") (correct_answer
+   "Z\197\130oty") (incorrect_answers (Ruble Euro Krone))) ((question "Which
+   song made by MAN WITH A MISSION was used as the opening for the anime
+   &quot;Log Horizon&quot;?") (correct_answer "&quot;Database&quot;")
+   (incorrect_answers ("&quot;Dead End in Tokyo&quot;" "&quot;Raise Your
+   Flag&quot;" "&quot;Out of Control&quot;"))))))) |}] *)

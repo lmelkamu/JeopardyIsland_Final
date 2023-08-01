@@ -8,15 +8,12 @@ val question_command : Command.t
 module Question : sig
   type t =
     { question : string
-    ; correct_answer : string
-    ; incorrect_answers : string list
+    ; answers : string list
+    ; correct_answer : char
     }
-  [@@deriving jsonaf, sexp, hash, compare]
 end
 
-module Questions : sig
-  type t = { results : Question.t list }
-end
+type t = Question.t list
 
-val get_questions : int -> Questions.t Deferred.t
-val is_correct : Question.t -> string -> bool
+val get_questions : int -> t Deferred.t
+val is_correct : Question.t -> char -> bool

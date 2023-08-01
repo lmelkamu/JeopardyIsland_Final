@@ -50,6 +50,7 @@ module Dot = Graph.Graphviz.Dot (struct
 type t =
   { player_one : Player.t ; 
     player_two : Player.t ; 
+    mutable curr_player: Player.t;
     game_state : Game_state.t ;
     difficulty : Level.t ; 
     mutable islands : Island.t list ; 
@@ -57,6 +58,8 @@ type t =
     mutable questions: Question.Question.t list
   }
 
+  let swap_player (player:Player.t) (game:t) = 
+    if Player.equal player game.player_one then game.player_two else game.player_one
 
   let update_start key = 
     match key with 
@@ -65,8 +68,10 @@ type t =
   ;;
   let update_buzzing (game:t) key = 
     match key with 
-    |'p' -> Some (Game_state.Answering game.player_one)
-    |'q' -> Some (Game_state.Answering game.player_two)
+    |'p' -> (game.curr_player <- game.player_one; 
+    Some (Game_state.Answering game.curr_player))
+    |'q' ->(game.curr_player <- game.player_two; 
+     Some (Game_state.Answering game.curr_player))
     | _ -> None;;
 
   let update_answer (game:t) key = 
@@ -74,13 +79,25 @@ type t =
     |'a'  
     |'b'
     |'c'
-    |'d' -> if Question.is_correct (List.hd_exn game.questions) key then Some (Game_state.Selecting game.player_one)
-    |_ -> ());;
+    |'d' -> if (Question.is_correct (List.hd_exn game.questions) key) 
+      then 
+      (Some (Game_state.Selecting game.curr_player))
+      else (
+        game.curr_player <- (swap_player game.curr_player game);
+        Some (Game_state.Selecting game.curr_player ))
+    |_ -> None);;
   
-  let update_selecting key = 
+    (* - counter for each time t is pressed
+       - get adjacent islands from current uslands
+       -  modulo counter over num of islands 
+       - pass the island being selected to graphics
+       - once y is selected, remove island from map mark it as visited and return buzzing*)
+  let update_selecting (game:t) key = 
     match key with 
     |'t' -> () 
+    |'y' -> ()
     |_ -> ();;
+
 module My_components = Graph.Components.Make (G)
 
 (* let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
@@ -177,24 +194,14 @@ let create game =
    - checks answer, updates score
    - moves player to next island
    - updates island as visited *)
-let update
-  (game : t)
-  (player : Player.t) (*once player is added to game, remove*)
-  (question : Question.Question.t)
-  (answer : string) 
-  (next_island: Island.t)
-  =
-  if Question.is_correct question answer
-  then player.points <- player.points + 3;
-;;
 
 let handle_key (game:t) key  =
   match game.game_state with 
-  |Start -> ()
-  |Answering player -> ()
-  |Buzzing -> ()
+  |Start -> update_start key
+  |Answering player -> update_answer game key
+  |Buzzing -> update_buzzing game key
   |Selecting player -> ()
-  |_ -> ();;
+  |_ -> None;;
 
 
 (* let game_command =

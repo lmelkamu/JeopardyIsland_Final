@@ -13,3 +13,5 @@ type t =
   ; mutable curr_island : Island.t
   ; mutable upgrades : Upgrade.t
   }
+
+val equal : t -> t -> bool

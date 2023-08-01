@@ -25,10 +25,12 @@ end
 type t =
   { player_one : Player.t
   ; player_two : Player.t
-  ; mutable game_state : Game_state.t
+  ; mutable curr_player : Player.t
+  ; game_state : Game_state.t
   ; difficulty : Level.T.t
   ; mutable islands : Island.t list
-  ; map : (Island.t, Island.t list) Hashtbl.t
+  ; (* map : (Island.t, Island.t list) Hashtbl.t *)
+    mutable questions : Question.Question.t list
   }
 
 val game_command : Command.t
