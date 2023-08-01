@@ -1,7 +1,7 @@
 open! Core
 open Async
 
-
+let pointer = ref (-1)
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
 
@@ -54,8 +54,9 @@ type t =
     game_state : Game_state.t ;
     difficulty : Level.t ; 
     mutable islands : Island.t list ; 
-    (* map : (Island.t, Island.t list) Hashtbl.t  *)
-    mutable questions: Question.Question.t list
+    map : (Island.t, Island.t list) Hashtbl.t;
+    mutable questions: Question.Question.t list;
+    mutable selected_island: Island.t option
   }
 
   let swap_player (player:Player.t) (game:t) = 
@@ -94,9 +95,16 @@ type t =
        - once y is selected, remove island from map mark it as visited and return buzzing*)
   let update_selecting (game:t) key = 
     match key with 
-    |'t' -> () 
-    |'y' -> ()
-    |_ -> ();;
+    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
+    pointer:= (!pointer + 1)%(List.length neighbors);
+    game.selected_island <- Some (List.nth_exn neighbors !pointer);
+    Some (Game_state.Selecting game.curr_player)) 
+    |'y' -> (game.curr_player.curr_island <- Option.value_exn game.selected_island;
+    game.selected_island <- None;
+    pointer:= -1;
+    Some Game_state.Buzzing
+    )
+    |_ -> None;;
 
 module My_components = Graph.Components.Make (G)
 
@@ -198,9 +206,9 @@ let create game =
 let handle_key (game:t) key  =
   match game.game_state with 
   |Start -> update_start key
-  |Answering player -> update_answer game key
+  |Answering _ -> update_answer game key
   |Buzzing -> update_buzzing game key
-  |Selecting player -> ()
+  |Selecting _ -> update_selecting game key
   |_ -> None;;
 
 
