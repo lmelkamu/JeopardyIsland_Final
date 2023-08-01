@@ -5,5 +5,6 @@ type t =
   ; position : int * int
   ; color : int * int * int
   }
+[@@deriving equal]
 
 include Hashable.S with type t := t

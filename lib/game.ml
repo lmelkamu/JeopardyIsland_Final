@@ -95,15 +95,20 @@ type t =
        - once y is selected, remove island from map mark it as visited and return buzzing*)
   let update_selecting (game:t) key = 
     match key with 
-    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
-    pointer:= (!pointer + 1)%(List.length neighbors);
+    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in
+    if List.length neighbors = 0 
+      then Some (Game_state.Game_over) 
+  else 
+    (pointer:= (!pointer + 1)%(List.length neighbors);
     game.selected_island <- Some (List.nth_exn neighbors !pointer);
-    Some (Game_state.Selecting game.curr_player)) 
+    Some (Game_state.Selecting game.curr_player)))
+
     |'y' -> (game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
-    Some Game_state.Buzzing
-    )
+    Hashtbl.filter_
+    Some Game_state.Buzzing)
+    
     |_ -> None;;
 
 module My_components = Graph.Components.Make (G)
