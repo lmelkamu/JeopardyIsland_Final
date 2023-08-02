@@ -18,7 +18,7 @@ module Constants = struct
   let play_area_height = 800. *. scaling_factor |> Float.iround_down_exn
   let header_height = 100. *. scaling_factor |> Float.iround_down_exn
   let play_area_width = 1000. *. scaling_factor |> Float.iround_down_exn
-  let circle_size = 27. *. scaling_factor |> Float.iround_down_exn
+  let circle_size = 25. *. scaling_factor |> Float.iround_down_exn
 end
 
 (* let draw_header ~game_state score = let open Constants in let header_color
@@ -64,11 +64,12 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
-let draw_islands (game:Game.t) =
+let draw_islands (game : Game.t) =
   let islands = game.islands in
   List.iter islands ~f:(fun island ->
-    let x, y = island.position in 
-    draw_circle x y ~color:Colors.red)
+    let x, y = island.position in let adjusted_x = 10 * x in let adjusted_y = 8 * y in 
+    if island.visited then 
+    draw_circle x y ~color:Colors.)
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in

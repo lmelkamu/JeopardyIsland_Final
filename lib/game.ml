@@ -65,6 +65,7 @@ type t =
   let update_start key = 
     match key with 
     |' ' -> Some Game_state.Buzzing
+    (* need to add delay before buzzing is allowed, but we still need to visualize the difference *)
     |_ -> None
   ;;
   let update_buzzing (game:t) key = 
@@ -75,6 +76,7 @@ type t =
      Some (Game_state.Answering game.curr_player))
     | _ -> None;;
 
+  (* need to add point subtraction *)
   let update_answer (game:t) key = 
     (match key with 
     |'a'  
@@ -93,27 +95,26 @@ type t =
        -  modulo counter over num of islands 
        - pass the island being selected to graphics
        - once y is selected, remove island from map mark it as visited and return buzzing*)
+
+  (* at this point, we need to remove all copies of current island from hashtbl *)
   let update_selecting (game:t) key = 
     match key with 
-    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in
-    if List.length neighbors = 0 
-      then Some (Game_state.Game_over) 
-  else 
-    (pointer:= (!pointer + 1)%(List.length neighbors);
+    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
+    pointer:= (!pointer + 1)%(List.length neighbors);
     game.selected_island <- Some (List.nth_exn neighbors !pointer);
-    Some (Game_state.Selecting game.curr_player)))
-
+    Some (Game_state.Selecting game.curr_player)) 
     |'y' -> (game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
-    Hashtbl.filter_
-    Some Game_state.Buzzing)
-    
+    Some Game_state.Buzzing
+    )
     |_ -> None;;
 
 module My_components = Graph.Components.Make (G)
 
-(* let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
+
+
+let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   List.iter nodes ~f:(fun (node_1, x1, y1) ->
     List.iter nodes ~f:(fun (node_2, x2, y2) ->
       if String.equal node_1 node_2
@@ -142,14 +143,26 @@ module My_components = Graph.Components.Make (G)
   else ()
 ;;
 
+module Coordinate = struct
+  type t =  {
+    name : string;
+    x : int;
+    y : int
+  }
+  [@@deriving sexp, compare, hash]
+end
+
 (*Initialized a game w/ the islands and outputs a graph*)
 let create game =
+  let x_scale = 10 in
+  let y_scale = 8 in 
   let graph = G.create () in
-  let size, bound =
+  let bound = 100 in 
+  let size =
     match game.difficulty with
-    | Level.Easy -> 10, 100
-    | Level.Medium -> 15, 150
-    | Level.Hard -> 20, 200
+    | Level.Easy -> 10
+    | Level.Medium -> 15
+    | Level.Hard -> 20
   in
   let solar_system =
     [ "Neptune"
@@ -175,17 +188,28 @@ let create game =
     ]
   in
 
-  let nodes =
+  let rec find_valid (current_nodes : Coordinate.t list ) : int * int = 
+    let rand_x =
+      Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn |> Int.( * ) x_scale 
+    in
+    let rand_y =
+      Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn |> Int.( * ) y_scale
+    in
+    let closest_coordinate = List.min_elt (current_nodes) ~compare:(fun point_one point_two -> let distance_one = (Float.sqrt
+    (Int.pow (point_one.x - rand_x) 2 + Int.pow (point_one.y - rand_y) 2 |> Float.of_int)) in let distance_two = 
+    (Float.sqrt (Int.pow (point_two.x - rand_x) 2 + Int.pow (point_two.y - rand_y) 2 |> Float.of_int)) in Int.of_float (distance_two -. distance_one)) in 
+    if (is_none closest_coordinate) then (rand_x,rand_y) else let coord = Option.value_exn closest_coordinate in 
+    if (Float.( < )
+    (Float.sqrt (Int.pow (coord.x - rand_x) 2 + Int.pow (coord.y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 5))) then (find_valid current_nodes) else (rand_x, rand_y)
+  ; in
+
+  let (start : Coordinate.t list) = [] in 
+  let nodes = 
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
-      G.add_vertex graph planet;
-      let x =
-        Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn
-      in
-      let y =
-        Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn
-      in
+      G.add_vertex graph planet; let (x,y) = find_valid start in 
       planet, x, y)
+
   in
   let%bind questions = Question.get_questions size in
   let questions = questions.results in
@@ -194,14 +218,14 @@ let create game =
       { Island.name = planet
       ; position = x, y
       ; question = List.nth_exn questions idx
-      ; color = 0, 0, 0
+      ; visited = false
       })
   in
   game.islands <- islands;
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
   return ()
-;; *)
+;;
 
 (* updates game state when player answer a question
    - checks answer, updates score
