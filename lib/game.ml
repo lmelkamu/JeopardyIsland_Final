@@ -241,7 +241,7 @@ let create (difficulty: Level.t)  =
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~nodes ~distance:(5.0) ~game in 
+    create_graph ~graph ~nodes ~distance:(5.0) ~game;
    game
 ;;
 
@@ -258,7 +258,7 @@ let create (difficulty: Level.t)  =
    |Selecting _ -> update_selecting game key
    |_ -> None;;
 
-let game_command =
+(* let game_command =
   let open Command.Let_syntax in
   Command.async
     ~summary:"Run game"
@@ -268,7 +268,7 @@ let game_command =
       in
       fun () -> 
         create level]
-;; 
+;;  *)
 
 (* let%expect_test "graph" = let game = { player_one ; player_two ;
    game_state = Game_state.Game_continues island ; difficulty = level } in
