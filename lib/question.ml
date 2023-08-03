@@ -26,6 +26,7 @@ module Question = struct
     ; answers : string list
     ; correct_answer : char
     }
+  [@@deriving sexp]
 
   let of_for_parsing_question (question : For_parsing.Question.t) : t =
     let answers =

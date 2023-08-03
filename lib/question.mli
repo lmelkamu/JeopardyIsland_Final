@@ -3,7 +3,7 @@ open! Async
 open! Cohttp_async
 open! Jsonaf
 
-val question_command : Command.t
+(* val question_command : Command.t *)
 
 module Question : sig
   type t =
@@ -11,6 +11,7 @@ module Question : sig
     ; answers : string list
     ; correct_answer : char
     }
+  [@@deriving sexp]
 end
 
 type t = Question.t list
