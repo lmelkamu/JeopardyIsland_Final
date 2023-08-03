@@ -278,4 +278,4 @@ let game_command =
    game_state = Game_state.Game_continues island ; difficulty = level } in
    let graph = create game in G.iter_vertex (fun vertex -> print_s [%sexp
    (G.out_degree graph vertex > 0 : bool)]) graph; [%expect {| true true true
-   true |}]
+   true |}] *)

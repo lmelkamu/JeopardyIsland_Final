@@ -45,9 +45,7 @@ let init_exn () =
        " %dx%d"
        (play_area_height + header_height)
        play_area_width);
-  let height = play_area_height / circle_size in
-  let width = play_area_width / circle_size in
-  Game.create ~height ~width ~initial_snake_length:3
+  Game.create difficulty
 ;;
 
 let draw_circle (row : int) (col : int) ~color =
@@ -55,7 +53,7 @@ let draw_circle (row : int) (col : int) ~color =
   let col = col * circle_size in
   let row = row * circle_size in
   Graphics.set_color color;
-  Graphics.fill_circle (col + 1) (row + 1) (circle_size)
+  Graphics.fill_circle (col + 1) (row + 1) circle_size
 ;;
 
 let draw_play_area () =
@@ -67,9 +65,10 @@ let draw_play_area () =
 let draw_islands (game : Game.t) =
   let islands = game.islands in
   List.iter islands ~f:(fun island ->
-    let x, y = island.position in let adjusted_x = 10 * x in let adjusted_y = 8 * y in 
-    if island.visited then 
-    draw_circle x y ~color:Colors.red)
+    let x, y = island.position in
+    let adjusted_x = 10 * x in
+    let adjusted_y = 8 * y in
+    if island.visited then draw_circle x y ~color:Colors.red)
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
@@ -93,19 +92,23 @@ let draw_islands (game : Game.t) =
    draw_snake (Snake.head snake_two) (Snake.tail snake_two);
    Graphics.display_mode true; Graphics.synchronize () ;; *)
 
-
-let draw_question (game: Game.t) =
-  let questions = game.questions in 
-  let question = List.hd_exn questions in 
+let draw_question (game : Game.t) =
+  let open Constants in
+  let questions = game.questions in
+  let question = List.hd_exn questions in
   Graphics.set_text_size 16;
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 700 (300) 200 300;
+  Graphics.fill_rect 700 300 200 300;
   Graphics.moveto 700 300;
-  Graphics.draw_string (Printf.sprintf "Question: %s" question.question)
-  List.fold question.answers ~init:10  ~f:(fun x_adjusted answer -> Graphics.moveto x_adjusted (play_area_height - 70); in
-  Graphics.draw_string answer; x_adjusted + (play_area_width / 4))
+  Graphics.draw_string question.question;
+  List.fold
+    (question.answers : string list)
+    ~init:10
+    ~f:(fun x_adjusted answer ->
+      Graphics.moveto x_adjusted (play_area_height - 70);
+      Graphics.draw_string answer;
+      x_adjusted + (play_area_width / 4))
 ;;
-
 
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
@@ -135,7 +138,7 @@ let draw_initial_board (game : Game.t) =
   Graphics.moveto 75 25;
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
-  Graphics.fill_rect 0 (play_area_height) play_area_width header_height;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
   Graphics.moveto 0 (play_area_height - 70);
   Graphics.draw_string "A:";
   Graphics.moveto (play_area_width / 4) (play_area_height - 70);
