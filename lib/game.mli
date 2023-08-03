@@ -34,5 +34,5 @@ type t =
   }
 
 (* val game_command : Command.t *)
-val handle_key : t -> char -> unit
-val create : Level.T.t -> t
+val handle_key : t -> char -> Game_state.t option
+val create : Level.T.t -> t Deferred.t
