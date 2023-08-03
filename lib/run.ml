@@ -30,6 +30,7 @@ let handle_keys (game : Game.t) ~game_over =
 
 let run () =
   let%bind game = Jeopardy_graphics.init_exn () in
+  Jeopardy_graphics.draw_board game;
   let game_over = ref false in
   return (handle_keys game ~game_over)
 ;;

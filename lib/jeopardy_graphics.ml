@@ -131,7 +131,11 @@ let draw_board (game : Game.t) =
   (* box 2: top header *)
   Graphics.display_mode false;
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 0 header_height play_area_width header_height;
+  Graphics.fill_rect
+    (play_area_height - header_height)
+    header_height
+    play_area_width
+    header_height;
   Graphics.moveto (play_area_width / 2) (header_height - 20);
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
