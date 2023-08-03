@@ -17,7 +17,7 @@ module Game_state : sig
     | Answering of Player.t
     | Buzzing
     | Selecting of Player.t
-  [@@deriving sexp_of, compare]
+  (* [@@deriving sexp_of, compare] *)
 
   val to_string : t -> string
 end
@@ -33,6 +33,6 @@ type t =
   ; mutable selected_island : Island.t option
   }
 
-val game_command : Command.t
+(* val game_command : Command.t *)
 val handle_key : t -> char -> unit
 val create : Level.T.t -> t

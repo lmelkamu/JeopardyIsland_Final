@@ -22,13 +22,17 @@ module Level = struct
 end
 
 module Game_state = struct
-  type t = 
-  |Start 
-  |Game_over 
-  |Answering of Player.t
-  |Buzzing
-  |Selecting of Player.t
-
+  module T = struct
+    type t = 
+    |Start 
+    |Game_over 
+    |Answering of Player.t
+    |Buzzing
+    |Selecting of Player.t
+    [@@deriving sexp]
+  end
+include (T)
+include Sexpable.To_stringable(T)
 end
 
 
@@ -241,7 +245,7 @@ let create (difficulty: Level.t)  =
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~nodes ~distance:(5.0) ~game;
+    create_graph ~graph ~nodes ~distance:(5.0) ~game; 
    game
 ;;
 

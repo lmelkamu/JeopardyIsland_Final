@@ -8,6 +8,7 @@ type t =
   ; mutable points : int
   ; mutable curr_island : Island.t (* ; mutable upgrades : Upgrade.t *)
   }
+[@@deriving sexp]
 
 val create : name:string -> island:Island.t -> t
 val equal : t -> t -> bool

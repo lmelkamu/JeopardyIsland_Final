@@ -92,7 +92,7 @@ let draw_islands (game : Game.t) =
    draw_snake (Snake.head snake_two) (Snake.tail snake_two);
    Graphics.display_mode true; Graphics.synchronize () ;; *)
 
-let draw_question (game : Game.t) =
+let draw_question_and_answers (game : Game.t) =
   let open Constants in
   let questions = game.questions in
   let question = List.hd_exn questions in
@@ -101,13 +101,13 @@ let draw_question (game : Game.t) =
   Graphics.fill_rect 700 300 200 300;
   Graphics.moveto 700 300;
   Graphics.draw_string question.question;
-  List.fold
+  List.iteri
     (question.answers : string list)
-    ~init:10
-    ~f:(fun x_adjusted answer ->
-      Graphics.moveto x_adjusted (play_area_height - 70);
-      Graphics.draw_string answer;
-      x_adjusted + (play_area_width / 4))
+    ~f:(fun idx answer ->
+      Graphics.moveto
+        (10 + (play_area_width * idx / 4))
+        (play_area_height - 70);
+      Graphics.draw_string answer)
 ;;
 
 let read_key () =
@@ -147,6 +147,7 @@ let draw_board (game : Game.t) =
   Graphics.draw_string "C:";
   Graphics.moveto (play_area_width * 3 / 4) (play_area_height - 70);
   Graphics.draw_string "D:";
+  draw_question_and_answers game;
   Graphics.display_mode true;
   Graphics.synchronize ()
 ;;
