@@ -15,5 +15,5 @@ end
 
 type t = Question.t list
 
-val get_questions : int -> t Deferred.t
+val get_questions : int -> t list Deferred.t
 val is_correct : Question.t -> char -> bool

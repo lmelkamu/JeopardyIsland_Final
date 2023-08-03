@@ -153,13 +153,13 @@ module Coordinate = struct
 end
 
 (*Initialized a game w/ the islands and outputs a graph*)
-let create game =
+let create difficulty =
   let x_scale = 10 in
   let y_scale = 8 in 
   let graph = G.create () in
   let bound = 100 in 
   let size =
-    match game.difficulty with
+    match difficulty with
     | Level.Easy -> 10
     | Level.Medium -> 15
     | Level.Hard -> 20
@@ -212,19 +212,16 @@ let create game =
 
   in
   let%bind questions = Question.get_questions size in
-  let questions = questions.results in
   let islands =
     List.mapi nodes ~f:(fun idx (planet, x, y) ->
       { Island.name = planet
       ; position = x, y
       ; question = List.nth_exn questions idx
-      ; visited = false
       })
   in
-  game.islands <- islands;
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
-  return ()
+  islands
 ;;
 
 (* updates game state when player answer a question
@@ -241,7 +238,7 @@ let handle_key (game:t) key  =
   |_ -> None;;
 
 
-(* let game_command =
+let game_command =
   let open Command.Let_syntax in
   Command.async
     ~summary:"Run game"
@@ -250,12 +247,31 @@ let handle_key (game:t) key  =
         flag "level" (required Level.arg) ~doc:"how hard game is"
       in
       fun () -> 
+        let islands = create_graph 
         let game =
-          { (* player_one ; player_two ( ; game_state =
-               Game_state.Game_continues island *)
-            difficulty = level
-          ; islands = []
-          ; map = Island.Table.create ()
+          { 
+          player_one = {
+            name = "Player_one";
+            points = 0;
+            curr_island = None;
+            upgrades = None
+          }; 
+          player_two = {
+            name = "Player_two";
+            points = 0;
+            curr_island = None;
+            upgrades = None
+          }; 
+          curr_player = game.player_one;
+          game_state = Game_state.Game_continues island ;
+          difficulty = level ; 
+          islands = None;
+          map = None;
+          questions = None;
+          selected_island = None
+
+            
+
           }
         in
         create game]
@@ -265,4 +281,4 @@ let handle_key (game:t) key  =
    game_state = Game_state.Game_continues island ; difficulty = level } in
    let graph = create game in G.iter_vertex (fun vertex -> print_s [%sexp
    (G.out_degree graph vertex > 0 : bool)]) graph; [%expect {| true true true
-   true |}] *)
+   true |}]

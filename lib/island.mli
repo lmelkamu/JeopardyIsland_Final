@@ -3,8 +3,7 @@ open! Core
 type t =
   { name : string
   ; position : int * int
-  ; color : int * int * int
+  ; question : Question.t
   }
-[@@deriving equal]
 
 include Hashable.S with type t := t

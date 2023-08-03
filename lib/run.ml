@@ -24,9 +24,6 @@ let handle_keys (game : Game.t) ~game_over =
     (* Jeopardy_graphics.render game) *))
 ;;
 
-let run () =
-  let game = Jeopardy_graphics.init_exn () in
-  Jeopardy_graphics.draw_initial_board game;
-  let game_over = ref false in
-  handle_keys game ~game_over
-;;
+(* let run () = let game = Jeopardy_graphics.init_exn () in
+   Jeopardy_graphics.draw_initial_board game; let game_over = ref false in
+   handle_keys game ~game_over ;; *)
