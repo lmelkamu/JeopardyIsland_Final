@@ -62,14 +62,10 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
-let draw_islands (game : Game.t) =
-  let islands = game.islands in
-  List.iter islands ~f:(fun island ->
-    let x, y = island.position in
-    let adjusted_x = 10 * x in
-    let adjusted_y = 8 * y in
-    if island.visited then draw_circle x y ~color:Colors.red)
-;;
+(* let draw_islands (game : Game.t) = let islands = game.islands in List.iter
+   islands ~f:(fun island -> let x, y = island.position in let adjusted_x =
+   10 * x - 1 in let adjusted_y = 8 * y in if island.visited then draw_circle
+   x y ~color:Colors.red) ;; *)
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
    draw_block apple_position ~color:(Colors.apple_color apple) ;; *)

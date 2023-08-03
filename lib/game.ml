@@ -52,7 +52,6 @@ type t =
     player_two : Player.t ; 
     mutable curr_player: Player.t;
     game_state : Game_state.t ;
-    difficulty : Level.t ; 
     mutable islands : Island.t list ; 
     map : (Island.t, Island.t list) Hashtbl.t;
     mutable questions: Question.Question.t list;
@@ -155,7 +154,7 @@ module Coordinate = struct
   [@@deriving sexp, compare, hash]
 end
 
-(*Initialized a game w/ the islands and outputs a graph*)
+(*Initialized the islands and outputs a graph*)
 let create_islands difficulty =
   let x_scale = 10 in
   let y_scale = 8 in 
@@ -216,15 +215,11 @@ let create_islands difficulty =
   in
   let%map questions = Question.get_questions size in
   let islands =
-    List.mapi nodes ~f:(fun idx (planet, x, y) ->
-      { Island.name = planet
-      ; position = x, y
-      ; question = List.nth_exn questions idx
-      })
-  in
+    List.map nodes ~f:(fun (planet, x, y) ->
+      Island.create ~name:planet ~position:(x,y)) in 
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
-  islands
+  islands,questions,graph,nodes
 ;;
 
 (* updates game state when player answer a question
@@ -242,27 +237,21 @@ let handle_key (game:t) key  =
 
 
 let create (difficulty: Level.t)  = 
-  let islands = create_graph Level.Easy in  
-  let game =
-    { 
-    player_one = {
-      name = "Player_one";
-      points = 0;
-      curr_island = List.nth_exn islands 0
-    }; 
-    player_two = {
-      name = "Player_two";
-      points = 0;
-      curr_island = List.nth_exn islands 1;
-
-    }; 
-    curr_player = game.player_one;
+  let islands,questions,graph,nodes = create_islands difficulty in 
+  let player_one = Player.create ~name:"Player_one" ~island:(List.nth_exn islands 0) in 
+  let player_two = Player.create ~name:"Player_two" ~island:(List.nth_exn islands 1) in 
+  let game = {
+ 
+    player_one = player_one; 
+    player_two = player_two; 
+    curr_player = player_one ;
     game_state = Game_state.Game_continues island ;
-    difficulty = level ; 
     islands = islands;
     map = Hashtbl.create ();
-    questions = Question.get_questions (match difficulty with |Easy -> 10 |Medium -> 15 |Hard -> 20);
-    selected_island = None} in game
+    questions = questions;
+    selected_island = None }
+   in 
+    create_graph ~graph ~nodes ~distance:(5.0) ~game
 ;;
 
 let game_command =

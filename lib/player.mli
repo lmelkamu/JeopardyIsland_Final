@@ -9,5 +9,5 @@ type t =
   ; mutable curr_island : Island.t (* ; mutable upgrades : Upgrade.t *)
   }
 
-val create : string -> Island.t -> t
+val create : name:string -> island:Island.t -> t
 val equal : t -> t -> bool
