@@ -26,7 +26,7 @@ module Question = struct
     ; answers : string list
     ; correct_answer : char
     }
-  [@@deriving sexp]
+  [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields] [@@deriving sexp]
 
   let of_for_parsing_question (question : For_parsing.Question.t) : t =
     let answers =

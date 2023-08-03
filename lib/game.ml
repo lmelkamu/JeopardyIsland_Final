@@ -103,9 +103,12 @@ type t =
     pointer:= (!pointer + 1)%(List.length neighbors);
     game.selected_island <- Some (List.nth_exn neighbors !pointer);
     Some (Game_state.Selecting game.curr_player)) 
-    |'y' -> (game.curr_player.curr_island <- Option.value_exn game.selected_island;
+    |'y' -> (
+    Hashtbl.iter game.map ~f:(fun neighbors -> if List.mem neighbors (game.curr_player.curr_island ~equal:Island.equal) then )
+    game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
+    
     Some Game_state.Buzzing
     )
     |_ -> None;;

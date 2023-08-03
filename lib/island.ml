@@ -6,9 +6,9 @@ module T = struct
   type t =
     { name : string
     ; position : int * int
-    ; question : Question.t
+    ; question : Question.Question.t
     }
-  [@@deriving sexp, compare, hash]
+  [@@deriving sexp, compare, hash, equal]
 end
 
 let create ~(name : string) ~(position : int * int) ~(question : Question.t)
