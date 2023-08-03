@@ -102,6 +102,7 @@ let draw_question_and_answers (game : Game.t) =
   Graphics.set_color Colors.head_color;
   Graphics.fill_rect 700 300 200 300;
   Graphics.moveto 700 300;
+  Graphics.set_color Colors.black;
   Graphics.draw_string question.question;
   List.iteri
     (question.answers : string list)
@@ -132,11 +133,11 @@ let draw_board (game : Game.t) =
   Graphics.display_mode false;
   Graphics.set_color Colors.head_color;
   Graphics.fill_rect
+    0
     (play_area_height - header_height)
-    header_height
     play_area_width
     header_height;
-  Graphics.moveto (play_area_width / 2) (header_height - 20);
+  Graphics.moveto (play_area_width / 2) (play_area_height + 20);
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto (play_area_width - 75) 25;
@@ -144,7 +145,7 @@ let draw_board (game : Game.t) =
   Graphics.moveto 75 25;
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  Graphics.fill_rect 0 0 play_area_width header_height;
   Graphics.moveto 0 (play_area_height - 70);
   Graphics.draw_string "A:";
   Graphics.moveto (play_area_width / 4) (play_area_height - 70);
