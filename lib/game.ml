@@ -53,7 +53,7 @@ type t =
     mutable curr_player: Player.t;
     game_state : Game_state.t ;
     mutable islands : Island.t list ; 
-    map : (Island.t, Island.t list) Hashtbl.t;
+    map : (Island.t, Island.Set.t) Hashtbl.t;
     mutable questions: Question.Question.t list;
     mutable selected_island: Island.t option
   }
@@ -104,7 +104,7 @@ type t =
     Some (Game_state.Selecting game.curr_player)) 
     |'y' -> (
       Hashtbl.remove game.map game.curr_player.curr_island;
-    Hashtbl.iter game.map ~f:(fun neighbors -> if List.filter neighbors ~f:(fun island));
+    Hashtbl.iteri game.map ~f:(fun ~key:island ~data:neighbors -> Hashtbl.update game.map island ~f:(fun _ -> (Set.remove neighbors game.curr_player.curr_island)));
     game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
@@ -132,7 +132,7 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
         let island_1 = List.find_exn game.islands ~f:(fun island -> String.equal node_1 island.name) in 
         let island_2 = List.find_exn game.islands ~f:(fun island -> String.equal node_2 island.name) in 
 
-        Hashtbl.update game.map island_1 ~f:(fun list -> match list with |None -> [island_2] |Some nodes -> nodes @ [island_2])))));
+        Hashtbl.update game.map island_1 ~f:(fun set -> match set with |None -> let new_set = Set.empty Island.comparable in Set.add new_set island_2|Some nodes -> Set.add nodes island_2)))));
   let islands = My_components.scc_list graph in
   let island_count = List.length islands in
   if island_count > 1

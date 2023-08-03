@@ -16,3 +16,4 @@ let create ~(name : string) ~(position : int * int) : T.t =
 
 include T
 include Hashable.Make (T)
+include Comparable.Make (T)

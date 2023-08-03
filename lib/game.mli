@@ -27,10 +27,10 @@ type t =
   ; player_two : Player.t
   ; mutable curr_player : Player.t
   ; game_state : Game_state.t
-  ; difficulty : Level.T.t
   ; mutable islands : Island.t list
-  ; (* map : (Island.t, Island.t list) Hashtbl.t *)
-    mutable questions : Question.Question.t list
+  ; map : (Island.t, Island.Set.t) Hashtbl.t
+  ; mutable questions : Question.Question.t list
+  ; mutable selected_island : Island.t option
   }
 
 val game_command : Command.t
