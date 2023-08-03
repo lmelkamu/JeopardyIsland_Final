@@ -68,8 +68,8 @@ let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island ->
     let x, y = island.position in
-    let adjusted_x = 10 * x in
-    let adjusted_y = 8 * y in
+    let adjusted_x = 3 * x in
+    let adjusted_y = 3 * y in
     draw_circle adjusted_x adjusted_y ~color:Colors.red)
 ;;
 
@@ -96,21 +96,20 @@ let draw_islands (game : Game.t) =
 
 let draw_question_and_answers (game : Game.t) =
   let open Constants in
+  let choices = [ "A:"; "B:"; "C:"; "D:" ] in
   let questions = game.questions in
   let question = List.hd_exn questions in
   Graphics.set_text_size 16;
-  Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 700 300 200 300;
-  Graphics.moveto 700 300;
-  Graphics.set_color Colors.black;
+  Graphics.set_color Colors.red;
+  Graphics.fill_rect 300 300 200 200;
+  Graphics.moveto 400 300;
   Graphics.draw_string question.question;
   List.iteri
     (question.answers : string list)
     ~f:(fun idx answer ->
-      Graphics.moveto
-        (10 + (play_area_width * idx / 4))
-        (play_area_height - 70);
-      Graphics.draw_string answer)
+      let answer_choice = List.nth_exn choices idx in
+      Graphics.moveto (20 + (play_area_width * idx / 4)) 20;
+      Graphics.draw_string (String.append answer_choice answer))
 ;;
 
 let read_key () =
@@ -126,11 +125,11 @@ let draw_board (game : Game.t) =
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
   Graphics.set_text_size 20;
+  Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
   draw_islands game;
   (* box 2: top header *)
-  Graphics.display_mode false;
   Graphics.set_color Colors.head_color;
   Graphics.fill_rect
     0
@@ -146,14 +145,12 @@ let draw_board (game : Game.t) =
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   (* box 3: bottom box *)
   Graphics.fill_rect 0 0 play_area_width header_height;
-  Graphics.moveto 0 (play_area_height - 70);
-  Graphics.draw_string "A:";
-  Graphics.moveto (play_area_width / 4) (play_area_height - 70);
-  Graphics.draw_string "B:";
-  Graphics.moveto (play_area_width / 2) (play_area_height - 70);
-  Graphics.draw_string "C:";
-  Graphics.moveto (play_area_width * 3 / 4) (play_area_height - 70);
-  Graphics.draw_string "D:";
+  (* Graphics.moveto right_shift (play_area_height - 70);
+     Graphics.draw_string "A:"; Graphics.moveto ((play_area_width / 4) +
+     right_shift) 70; Graphics.draw_string "B:"; Graphics.moveto
+     ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
+     Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
+     Graphics.draw_string "D:"; *)
   draw_question_and_answers game;
   Graphics.display_mode true;
   Graphics.synchronize ()
