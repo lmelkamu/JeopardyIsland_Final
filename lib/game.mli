@@ -35,3 +35,4 @@ type t =
 
 val game_command : Command.t
 val handle_key : t -> char -> unit
+val create : Level.T.t -> t

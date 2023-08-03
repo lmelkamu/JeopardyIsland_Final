@@ -248,11 +248,12 @@ let create (difficulty: Level.t)  =
     curr_player = player_one ;
     game_state = Game_state.Game_continues island ;
     islands = islands;
-    map = Hashtbl.create ();
+    map = Island.Table.create ();
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~nodes ~distance:(5.0) ~game
+    create_graph ~graph ~nodes ~distance:(5.0) ~game in 
+   game
 ;;
 
 let game_command =

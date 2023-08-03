@@ -34,7 +34,7 @@ end
 
 let only_one : bool ref = ref false
 
-let init_exn () =
+let init_exn () : Game.t =
   let open Constants in
   (* Should raise if called twice *)
   if !only_one
@@ -45,7 +45,7 @@ let init_exn () =
        " %dx%d"
        (play_area_height + header_height)
        play_area_width);
-  Game.create difficulty
+  Game.create Game.Level.T.Easy
 ;;
 
 let draw_circle (row : int) (col : int) ~color =
@@ -62,10 +62,14 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
-(* let draw_islands (game : Game.t) = let islands = game.islands in List.iter
-   islands ~f:(fun island -> let x, y = island.position in let adjusted_x =
-   10 * x - 1 in let adjusted_y = 8 * y in if island.visited then draw_circle
-   x y ~color:Colors.red) ;; *)
+let draw_islands (game : Game.t) =
+  let (map : (Island.t, Island.t list) Hashtbl.t) = game.map in
+  Hashtbl.iter_keys map ~f:(fun island ->
+    let x, y = island.position in
+    let adjusted_x = 10 * x in
+    let adjusted_y = 8 * y in
+    draw_circle x y ~color:Colors.red)
+;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
    draw_block apple_position ~color:(Colors.apple_color apple) ;; *)
@@ -110,7 +114,7 @@ let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
 ;;
 
-let draw_initial_board (game : Game.t) =
+let draw_board (game : Game.t) =
   let open Constants in
   let player_one = game.player_one in
   let player_two = game.player_two in

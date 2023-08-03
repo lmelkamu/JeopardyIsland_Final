@@ -13,5 +13,6 @@ open! Core
    (** [read_key] returns a keyboard input, if it's available. *) val
    read_key : unit -> char option *)
 
-val draw_initial_board : Game.t -> unit
+val draw_board : Game.t -> unit
+val init_exn : unit -> Game.t
 val read_key : unit -> char option
