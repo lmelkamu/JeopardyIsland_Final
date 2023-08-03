@@ -1,7 +1,6 @@
 open! Core
 open Async
 
-let map = (Island.t * Island.t list).Hashtbl.create ()  in 
 let pointer = ref (-1)
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
@@ -239,7 +238,28 @@ let handle_key (game:t) key  =
   |_ -> None;;
 
 
-let create (difficulty: Level.t) ()
+let create (difficulty: Level.t)  = 
+  let islands = create_graph Level.Easy in  
+  let game =
+    { 
+    player_one = {
+      name = "Player_one";
+      points = 0;
+      curr_island = List.nth_exn islands 0
+    }; 
+    player_two = {
+      name = "Player_two";
+      points = 0;
+      curr_island = List.nth_exn islands 1;
+
+    }; 
+    curr_player = game.player_one;
+    game_state = Game_state.Game_continues island ;
+    difficulty = level ; 
+    islands = islands;
+    map = Hashtbl.create ();
+    questions = Question.get_questions (match difficulty with |Easy -> 10 |Medium -> 15 |Hard -> 20);
+    selected_island = None} in game
 ;;
 
 let game_command =
@@ -251,33 +271,7 @@ let game_command =
         flag "level" (required Level.arg) ~doc:"how hard game is"
       in
       fun () -> 
-        let islands = create_graph Level.Easy in  
-        let game =
-          { 
-          player_one = {
-            name = "Player_one";
-            points = 0;
-            curr_island = List.nth_exn islands 0
-          }; 
-          player_two = {
-            name = "Player_two";
-            points = 0;
-            curr_island = List.nth_exn islands 1;
-
-          }; 
-          curr_player = game.player_one;
-          game_state = Game_state.Game_continues island ;
-          difficulty = level ; 
-          islands = islands;
-          map = None;
-          questions = None;
-          selected_island = None
-
-            
-
-          }
-        in
-        create game]
+        create level]
 ;; 
 
 (* let%expect_test "graph" = let game = { player_one ; player_two ;
