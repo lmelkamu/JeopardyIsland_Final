@@ -1,4 +1,5 @@
 open! Core
+open! Async
 
 module Level : sig
   module T : sig
@@ -34,5 +35,5 @@ type t =
   }
 
 (* val game_command : Command.t *)
-val handle_key : t -> char -> Game_state.t option
-val create : Level.T.t -> t Deferred.t
+val handle_key : t -> char -> unit
+val create : Level.T.t -> t

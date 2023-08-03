@@ -13,12 +13,12 @@ module Level = struct
       | Hard
     [@@deriving enumerate, sexp]
 
-    let to_string t = Sexp.to_string (sexp_of_t t)
+    (* let to_string t = Sexp.to_string (sexp_of_t t) *)
   end
 
   include T
 
-  let arg : t Command.Arg_type.t = Command.Arg_type.enumerated (module T)
+  (* let arg : t Command.Arg_type.t = Command.Arg_type.enumerated (module T) *)
 end
 
 module Game_state = struct
@@ -55,7 +55,7 @@ type t =
   { player_one : Player.t ; 
     player_two : Player.t ; 
     mutable curr_player: Player.t;
-    game_state : Game_state.t ;
+    mutable game_state : Game_state.t ;
     mutable islands : Island.t list ; 
     map : (Island.t, Island.Set.t) Hashtbl.t;
     mutable questions: Question.Question.t list;
@@ -65,19 +65,19 @@ type t =
   let swap_player (player:Player.t) (game:t) = 
     if Player.equal player game.player_one then game.player_two else game.player_one
 
-  let update_start key = 
+  let update_start game key = 
     match key with 
-    |' ' -> Some Game_state.Buzzing
+    |' ' -> game.game_state <- Game_state.Buzzing
     (* need to add delay before buzzing is allowed, but we still need to visualize the difference *)
-    |_ -> None
+    |_ -> ()
   ;;
   let update_buzzing (game:t) key = 
     match key with 
-    |'p' -> (game.curr_player <- game.player_one; 
-    Some (Game_state.Answering game.curr_player))
-    |'q' ->(game.curr_player <- game.player_two; 
-     Some (Game_state.Answering game.curr_player))
-    | _ -> None;;
+    |'p' -> (game.curr_player <- game.player_one;
+    game.game_state <- Game_state.Answering game.curr_player)
+    |'q' ->(game.curr_player <- game.player_two;
+    game.game_state <- Game_state.Answering game.curr_player)
+    | _ -> () ;;
 
   (* need to add point subtraction *)
   let update_answer (game:t) key = 
@@ -86,12 +86,11 @@ type t =
     |'b'
     |'c'
     |'d' -> if (Question.is_correct (List.hd_exn game.questions) key) 
-      then 
-      (Some (Game_state.Selecting game.curr_player))
+      then game.game_state <- Game_state.Selecting game.curr_player
       else (
         game.curr_player <- (swap_player game.curr_player game);
-        Some (Game_state.Selecting game.curr_player ))
-    |_ -> None);;
+        game.game_state <- Game_state.Selecting game.curr_player )
+    |_ -> ());;
   
     (* - counter for each time t is pressed
        - get adjacent islands from current uslands
@@ -105,7 +104,7 @@ type t =
     |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
     pointer:= (!pointer + 1)%(Set.length neighbors);
     game.selected_island <- Some (Set.nth neighbors !pointer |> Option.value_exn) ;
-    Some (Game_state.Selecting game.curr_player)) 
+    game.game_state <- (Game_state.Selecting game.curr_player)) 
     |'y' -> (
       Hashtbl.remove game.map game.curr_player.curr_island;
     Hashtbl.iteri game.map ~f:(fun ~key:island ~data:neighbors -> Hashtbl.update game.map island ~f:(fun _ -> (Set.remove neighbors game.curr_player.curr_island)));
@@ -113,9 +112,9 @@ type t =
     game.selected_island <- None;
     pointer:= -1;
     
-    Some Game_state.Buzzing
+    game.game_state <- Game_state.Buzzing
     )
-    |_ -> None;;
+    |_ -> ();;
 
 module My_components = Graph.Components.Make (G)
 
@@ -230,7 +229,7 @@ let create_islands difficulty =
 ;;
 
 
-let create (difficulty: Level.t)  = 
+let create (difficulty: Level.t) = 
   let%map (islands:Island.t list),(questions:Question.t),(graph:G.t),(nodes: (string*int*int) list) = create_islands difficulty in 
   let player_one = Player.create ~name:"Player_one" ~island:(List.nth_exn islands 0) in 
   let player_two = Player.create ~name:"Player_two" ~island:(List.nth_exn islands 1) in 
@@ -256,11 +255,11 @@ let create (difficulty: Level.t)  =
 
    let handle_key (game:t) key  =
    match game.game_state with 
-   |Start -> update_start key
+   |Start -> update_start game key
    |Answering _ -> update_answer game key
    |Buzzing -> update_buzzing game key
    |Selecting _ -> update_selecting game key
-   |_ -> None;;
+   |_ -> ();;
 
 (* let game_command =
   let open Command.Let_syntax in
