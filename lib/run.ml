@@ -1,4 +1,5 @@
 open! Core
+open! Async
 
 (* This is the core logic that actually runs the game. We have implemented
    all of this for you, but feel free to read this file as a reference. *)
@@ -27,8 +28,7 @@ let handle_keys (game : Game.t) ~game_over =
 ;;
 
 let run () =
-  let game = Jeopardy_graphics.init_exn () in
-  Jeopardy_graphics.draw_board game;
+  let game = Jeopardy_graphics.init_exn () |> Deferred.value_exn in
   let game_over = ref false in
   handle_keys game ~game_over
 ;;

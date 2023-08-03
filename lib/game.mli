@@ -27,7 +27,7 @@ type t =
   { player_one : Player.t
   ; player_two : Player.t
   ; mutable curr_player : Player.t
-  ; game_state : Game_state.t
+  ; mutable game_state : Game_state.t
   ; mutable islands : Island.t list
   ; map : (Island.t, Island.Set.t) Hashtbl.t
   ; mutable questions : Question.Question.t list
@@ -36,4 +36,4 @@ type t =
 
 (* val game_command : Command.t *)
 val handle_key : t -> char -> unit
-val create : Level.T.t -> t
+val create : Level.T.t -> t Deferred.t

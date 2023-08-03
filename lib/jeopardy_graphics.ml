@@ -1,4 +1,6 @@
 open! Core
+open! Async
+open! Graphics
 
 module Colors = struct
   let black = Graphics.rgb 000 000 000
@@ -34,7 +36,7 @@ end
 
 let only_one : bool ref = ref false
 
-let init_exn () : Game.t =
+let init_exn () =
   let open Constants in
   (* Should raise if called twice *)
   if !only_one

@@ -1,4 +1,5 @@
 open! Core
+open! Async
 
 (* (** This module handles the graphics for the game. We have implemented
    this for you so you don't need to change anything here, but feel free to
@@ -14,5 +15,5 @@ open! Core
    read_key : unit -> char option *)
 
 val draw_board : Game.t -> unit
-val init_exn : unit -> Game.t
+val init_exn : unit -> Game.t Deferred.t
 val read_key : unit -> char option
