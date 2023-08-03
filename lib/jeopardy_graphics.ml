@@ -63,7 +63,7 @@ let draw_play_area () =
 ;;
 
 let draw_islands (game : Game.t) =
-  let (map : (Island.t, Island.t list) Hashtbl.t) = Game.map game in
+  let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island ->
     let x, y = island.position in
     let adjusted_x = 10 * x in

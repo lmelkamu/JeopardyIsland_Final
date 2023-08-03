@@ -99,8 +99,8 @@ type t =
   let update_selecting (game:t) key = 
     match key with 
     |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
-    pointer:= (!pointer + 1)%(List.length neighbors);
-    game.selected_island <- Some (List.nth_exn neighbors !pointer);
+    pointer:= (!pointer + 1)%(Set.length neighbors);
+    game.selected_island <- Some (Set.nth neighbors !pointer |> Option.value_exn) ;
     Some (Game_state.Selecting game.curr_player)) 
     |'y' -> (
       Hashtbl.remove game.map game.curr_player.curr_island;
@@ -132,7 +132,7 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
         let island_1 = List.find_exn game.islands ~f:(fun island -> String.equal node_1 island.name) in 
         let island_2 = List.find_exn game.islands ~f:(fun island -> String.equal node_2 island.name) in 
 
-        Hashtbl.update game.map island_1 ~f:(fun set -> match set with |None -> let new_set = Set.empty Island.comparable in Set.add new_set island_2|Some nodes -> Set.add nodes island_2)))));
+        Hashtbl.update game.map island_1 ~f:(fun set -> match set with |None -> Island.Set.singleton island_2 |Some nodes -> Set.add nodes island_2)))));
   let islands = My_components.scc_list graph in
   let island_count = List.length islands in
   if island_count > 1
@@ -225,22 +225,9 @@ let create_islands difficulty =
   islands,questions,graph,nodes
 ;;
 
-(* updates game state when player answer a question
-   - checks answer, updates score
-   - moves player to next island
-   - updates island as visited *)
-
-let handle_key (game:t) key  =
-  match game.game_state with 
-  |Start -> update_start key
-  |Answering _ -> update_answer game key
-  |Buzzing -> update_buzzing game key
-  |Selecting _ -> update_selecting game key
-  |_ -> None;;
-
 
 let create (difficulty: Level.t)  = 
-  let islands,questions,graph,nodes = create_islands difficulty in 
+  let%map (islands:Island.t list),(questions:Question.t),(graph:G.t),(nodes: (string*int*int) list) = create_islands difficulty in 
   let player_one = Player.create ~name:"Player_one" ~island:(List.nth_exn islands 0) in 
   let player_two = Player.create ~name:"Player_two" ~island:(List.nth_exn islands 1) in 
   let game = {
@@ -248,7 +235,7 @@ let create (difficulty: Level.t)  =
     player_one = player_one; 
     player_two = player_two; 
     curr_player = player_one ;
-    game_state = Game_state.Game_continues island ;
+    game_state = Game_state.Start;
     islands = islands;
     map = Island.Table.create ();
     questions = questions;
@@ -257,6 +244,19 @@ let create (difficulty: Level.t)  =
     create_graph ~graph ~nodes ~distance:(5.0) ~game in 
    game
 ;;
+
+(* updates game state when player answer a question
+   - checks answer, updates score
+   - moves player to next island
+   - updates island as visited *)
+
+   let handle_key (game:t) key  =
+   match game.game_state with 
+   |Start -> update_start key
+   |Answering _ -> update_answer game key
+   |Buzzing -> update_buzzing game key
+   |Selecting _ -> update_selecting game key
+   |_ -> None;;
 
 let game_command =
   let open Command.Let_syntax in
