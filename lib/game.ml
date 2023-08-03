@@ -161,6 +161,8 @@ let create_islands difficulty =
   let y_scale = 8 in 
   let graph = G.create () in
   let bound = 100 in 
+  let right_left_margin = 2 in 
+  let up_down_margin = 2 in 
   let size =
     match difficulty with
     | Level.Easy -> 10
@@ -193,10 +195,10 @@ let create_islands difficulty =
 
   let rec find_valid (current_nodes : Coordinate.t list ) : int * int = 
     let rand_x =
-      Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn |> Int.( * ) x_scale 
+      (Int63.random (Int63.of_int (bound - (2 * right_left_margin))) |> Int63.to_int |> Option.value_exn |> Int.( * ) x_scale) + (Int.( * ) right_left_margin x_scale)
     in
     let rand_y =
-      Int63.random (Int63.of_int bound) |> Int63.to_int |> Option.value_exn |> Int.( * ) y_scale
+      (Int63.random (Int63.of_int (bound - (2 * up_down_margin))) |> Int63.to_int |> Option.value_exn |> Int.( * ) y_scale) + ((Int.( * ) up_down_margin x_scale))
     in
     let closest_coordinate = List.min_elt (current_nodes) ~compare:(fun point_one point_two -> let distance_one = (Float.sqrt
     (Int.pow (point_one.x - rand_x) 2 + Int.pow (point_one.y - rand_y) 2 |> Float.of_int)) in let distance_two = 
