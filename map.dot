@@ -11,33 +11,5 @@ digraph G {
   Mars [fillcolor="#0003E8", label="Mars", shape=box, ];
   
   
-  Neptune -> Moon [dir=both, ];
-  Mercury -> Jupiter [dir=both, ];
-  Mercury -> Mars [dir=both, ];
-  Uranus -> Mars [dir=both, ];
-  Uranus -> Mercury [dir=both, ];
-  Uranus -> Moon [dir=both, ];
-  Uranus -> Pluto [dir=both, ];
-  Uranus -> Sun [dir=both, ];
-  Uranus -> Titan [dir=both, ];
-  Titan -> Mercury [dir=both, ];
-  Titan -> Moon [dir=both, ];
-  Titan -> Pluto [dir=both, ];
-  Titan -> Sun [dir=both, ];
-  Moon -> Mercury [dir=both, ];
-  Sun -> Mars [dir=both, ];
-  Sun -> Mercury [dir=both, ];
-  Sun -> Moon [dir=both, ];
-  Sun -> Pluto [dir=both, ];
-  Venus -> Mercury [dir=both, ];
-  Venus -> Moon [dir=both, ];
-  Venus -> Neptune [dir=both, ];
-  Venus -> Pluto [dir=both, ];
-  Venus -> Sun [dir=both, ];
-  Pluto -> Jupiter [dir=both, ];
-  Pluto -> Mercury [dir=both, ];
-  Pluto -> Moon [dir=both, ];
-  Pluto -> Neptune [dir=both, ];
-  Mars -> Jupiter [dir=both, ];
   
   }

@@ -14,6 +14,6 @@ open! JeopardyIsland_Final
    let () = Command_unix.run command *)
 
 let () =
-  Run.run ();
+  don't_wait_for (Run.run ());
   Core.never_returns (Async.Scheduler.go ())
 ;;

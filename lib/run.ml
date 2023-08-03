@@ -23,12 +23,13 @@ let handle_keys (game : Game.t) ~game_over =
     | None -> ()
     | Some key ->
       Game.handle_key game key;
+      (match game.game_state with Game_over -> game_over := true | _ -> ());
       Jeopardy_graphics.draw_board game
     (* Jeopardy_graphics.render game) *))
 ;;
 
 let run () =
-  let game = Jeopardy_graphics.init_exn () |> Deferred.value_exn in
+  let%bind game = Jeopardy_graphics.init_exn () in
   let game_over = ref false in
-  handle_keys game ~game_over
+  return (handle_keys game ~game_over)
 ;;
