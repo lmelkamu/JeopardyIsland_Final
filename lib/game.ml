@@ -103,7 +103,8 @@ type t =
     game.selected_island <- Some (List.nth_exn neighbors !pointer);
     Some (Game_state.Selecting game.curr_player)) 
     |'y' -> (
-    Hashtbl.iter game.map ~f:(fun neighbors -> if List.mem neighbors (game.curr_player.curr_island ~equal:Island.equal) then )
+      Hashtbl.remove game.map game.curr_player.curr_island;
+    Hashtbl.iter game.map ~f:(fun neighbors -> if List.filter neighbors ~f:(fun island));
     game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;

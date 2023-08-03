@@ -6,5 +6,6 @@ type t =
   }
 
 val create : name:string -> position:int * int -> t
+val create : string -> int * int -> Question.t -> t
 
 include Hashable.S with type t := t

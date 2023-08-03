@@ -11,7 +11,7 @@ module For_parsing = struct
       ; correct_answer : string
       ; incorrect_answers : string list
       }
-    [@@deriving jsonaf, sexp, hash, compare] [@@jsonaf.allow_extra_fields]
+    [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
   end
 
   module Questions = struct
@@ -26,7 +26,7 @@ module Question = struct
     ; answers : string list
     ; correct_answer : char
     }
-  [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields] [@@deriving sexp]
+  [@@deriving jsonaf, sexp, compare, hash] [@@jsonaf.allow_extra_fields]
 
   let of_for_parsing_question (question : For_parsing.Question.t) : t =
     let answers =

@@ -11,7 +11,7 @@ module Question : sig
     ; answers : string list
     ; correct_answer : char
     }
-  [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
+  [@@deriving jsonaf, sexp, compare] [@@jsonaf.allow_extra_fields]
 end
 
 type t = Question.t list
