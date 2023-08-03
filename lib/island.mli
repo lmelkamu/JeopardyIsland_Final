@@ -6,4 +6,6 @@ type t =
   ; question : Question.t
   }
 
+
+val create : string -> int*int -> Question.t ->  
 include Hashable.S with type t := t

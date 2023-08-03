@@ -1,6 +1,7 @@
 open! Core
 open Async
 
+let map = (Island.t * Island.t list).Hashtbl.create ()  in 
 let pointer = ref (-1)
 (* module Game_state = struct type t = Game_continues of Island.t | Game_over
    of Player.t end *)
@@ -153,7 +154,7 @@ module Coordinate = struct
 end
 
 (*Initialized a game w/ the islands and outputs a graph*)
-let create difficulty =
+let create_islands difficulty =
   let x_scale = 10 in
   let y_scale = 8 in 
   let graph = G.create () in
@@ -211,7 +212,7 @@ let create difficulty =
       planet, x, y)
 
   in
-  let%bind questions = Question.get_questions size in
+  let%map questions = Question.get_questions size in
   let islands =
     List.mapi nodes ~f:(fun idx (planet, x, y) ->
       { Island.name = planet
@@ -238,6 +239,9 @@ let handle_key (game:t) key  =
   |_ -> None;;
 
 
+let create (difficulty: Level.t) ()
+;;
+
 let game_command =
   let open Command.Let_syntax in
   Command.async
@@ -247,25 +251,24 @@ let game_command =
         flag "level" (required Level.arg) ~doc:"how hard game is"
       in
       fun () -> 
-        let islands = create_graph 
+        let islands = create_graph Level.Easy in  
         let game =
           { 
           player_one = {
             name = "Player_one";
             points = 0;
-            curr_island = None;
-            upgrades = None
+            curr_island = List.nth_exn islands 0
           }; 
           player_two = {
             name = "Player_two";
             points = 0;
-            curr_island = None;
-            upgrades = None
+            curr_island = List.nth_exn islands 1;
+
           }; 
           curr_player = game.player_one;
           game_state = Game_state.Game_continues island ;
           difficulty = level ; 
-          islands = None;
+          islands = islands;
           map = None;
           questions = None;
           selected_island = None
@@ -275,7 +278,7 @@ let game_command =
           }
         in
         create game]
-;; *)
+;; 
 
 (* let%expect_test "graph" = let game = { player_one ; player_two ;
    game_state = Game_state.Game_continues island ; difficulty = level } in

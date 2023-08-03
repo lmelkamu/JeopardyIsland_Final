@@ -69,7 +69,7 @@ let draw_islands (game : Game.t) =
   List.iter islands ~f:(fun island ->
     let x, y = island.position in let adjusted_x = 10 * x in let adjusted_y = 8 * y in 
     if island.visited then 
-    draw_circle x y ~color:Colors.)
+    draw_circle x y ~color:Colors.red)
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
