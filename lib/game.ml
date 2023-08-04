@@ -142,10 +142,16 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
   then
     List.range 0 (island_count - 2)
     |> List.iter ~f:(fun (island_number : int) ->
+      let island_1_name = List.random_element_exn (List.nth_exn islands island_number) in 
+      let island_2_name = List.random_element_exn (List.nth_exn islands (island_number + 1)) in 
+      let random_island_1 = List.find_exn game.islands ~f:(fun island -> String.equal island_1_name island.name) in 
+        let random_island_2 = List.find_exn game.islands ~f:(fun island -> String.equal island_2_name island.name) in 
       G.add_edge
         graph
-        (List.random_element_exn (List.nth_exn islands island_number))
-        (List.random_element_exn (List.nth_exn islands (island_number + 1))))
+        island_1_name
+        island_2_name;
+        Hashtbl.update game.map random_island_1 ~f:(fun set -> match set with |None -> Island.Set.singleton random_island_2 |Some nodes -> Set.add nodes random_island_2);
+        Hashtbl.update game.map random_island_2 ~f:(fun set -> match set with |None -> Island.Set.singleton random_island_1 |Some nodes -> Set.add nodes random_island_1))
   else ()
 ;;
 
@@ -216,7 +222,9 @@ let create_islands difficulty =
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
       G.add_vertex graph planet; let (x,y) = find_valid start in 
-      planet, x, y)
+      
+      planet, x, y
+      )
 
   in
   let%map questions = Question.get_questions size in
@@ -244,7 +252,7 @@ let create (difficulty: Level.t) =
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~nodes ~distance:(5.0) ~game; 
+    create_graph ~graph ~nodes ~distance:(20.0) ~game; 
    game
 ;;
 

@@ -4,8 +4,7 @@ open! Graphics
 
 module Colors = struct
   let black = Graphics.rgb 000 000 000
-
-  (* let green = Graphics.rgb 000 255 000 *)
+  let green = Graphics.rgb 000 255 000
   let head_color = Graphics.rgb 100 100 125
   let red = Graphics.rgb 255 000 000
   (* let gold = Graphics.rgb 255 223 0 let game_in_progress = Graphics.rgb
@@ -66,10 +65,13 @@ let draw_play_area () =
 
 let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
+  print_s [%message (map : (Island.t, Island.Set.t) Hashtbl.t)];
   Hashtbl.iter_keys map ~f:(fun island ->
     let x, y = island.position in
-    let adjusted_x = 3 * x in
-    let adjusted_y = 3 * y in
+    let adjusted_x = x in
+    let adjusted_y = y in
+    Graphics.set_color Colors.green;
+    Graphics.fill_circle adjusted_x adjusted_y 10;
     draw_circle adjusted_x adjusted_y ~color:Colors.red)
 ;;
 
