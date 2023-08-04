@@ -8,6 +8,8 @@ module Colors = struct
   let head_color = Graphics.rgb 100 100 125
   let red = Graphics.rgb 255 000 000
   let gold = Graphics.rgb 255 223 0
+  let blue = Graphics.rgb 0 0 255
+  let purple = Graphics.rgb 100 0 100
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
@@ -71,7 +73,13 @@ let draw_islands (game : Game.t) =
       let x_2, y_2 = island_2.position in
       Graphics.moveto x y;
       Graphics.set_line_width 3;
-      Graphics.lineto x_2 y_2))
+      Graphics.lineto x_2 y_2));
+  let player_one_island = game.player_one.curr_island in
+  let p_1_x, p_1_y = player_one_island.position in
+  draw_circle p_1_x p_1_y ~color:Colors.purple;
+  let player_two_island = game.player_two.curr_island in
+  let p_2_x, p_2_y = player_two_island.position in
+  draw_circle p_2_x p_2_y ~color:Colors.blue
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
