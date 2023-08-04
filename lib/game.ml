@@ -173,9 +173,9 @@ let create_islands difficulty =
   let up_down_margin = 3 in 
   let size =
     match difficulty with
-    | Level.Easy -> 10
-    | Level.Medium -> 15
-    | Level.Hard -> 20
+    | Level.Easy -> 25
+    | Level.Medium -> 30
+    | Level.Hard -> 40
   in
   let solar_system =
     [ "Neptune"
@@ -198,7 +198,36 @@ let create_islands difficulty =
     ; "Rhea"
     ; "Iapetus"
     ; "Oberon"
-    ]
+    ; "Dimidium"
+    ; "Hoth"
+    ;
+  "Astronova";
+  "Veridian Prime";
+  "Zephyrion";
+  "Lunaris";
+  "Thalassia";
+  "Nova-9";
+  "Epsilon Eridani";
+  "Caelum";
+  "Solara";
+  "Nebuloria";
+  "Aurelia";
+  "Orionis";
+  "Pandora";
+  "Vulcanus";
+  "Galactica";
+  "Lyra Minor";
+  "Xenoth";
+  "Terra Nova";
+  "Aquaar";
+  "Magmara";
+  "Celestis";
+  "Stellara";
+  "Chronos";
+  "Iridia";
+  "Zephyria"
+];
+
   in
 
   let rec find_valid (current_nodes : (int *int) list) (max_islands: int): (int * int) list =
@@ -248,7 +277,7 @@ let create (difficulty: Level.t) =
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~distance:(20.0) ~game; 
+    create_graph ~graph ~distance:(150.0) ~game; 
    game
 ;;
 
