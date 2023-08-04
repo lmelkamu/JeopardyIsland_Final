@@ -90,8 +90,10 @@ type t =
     |'b'
     |'c'
     |'d' -> if (Question.is_correct (List.hd_exn game.questions) key) 
-      then game.game_state <- Game_state.Selecting game.curr_player
+      then (game.game_state <- Game_state.Selecting game.curr_player;
+        game.curr_player.points <- game.curr_player.points + 3)
       else (
+        game.curr_player.points <- game.curr_player.points- 3;
         game.curr_player <- (swap_player game.curr_player game);
         game.game_state <- Game_state.Selecting game.curr_player )
     |_ -> ());;
