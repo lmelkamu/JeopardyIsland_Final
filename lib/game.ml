@@ -118,6 +118,7 @@ type t =
     game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
+    game.questions <- List.tl_exn game.questions;
     game.game_state <- Game_state.Buzzing
     )
     |_ -> ();;
