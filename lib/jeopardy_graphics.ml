@@ -181,7 +181,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
-  handle_game_states game;
+  handle_game_states_visually game;
   Graphics.display_mode true;
   Graphics.synchronize ()
 ;;
