@@ -49,13 +49,10 @@ let init_exn () =
   Game.create Game.Level.T.Easy
 ;;
 
-let draw_circle (row : int) (col : int) ~color =
-  let open Constants in
-  let col = col * circle_size in
-  let row = row * circle_size in
-  Graphics.set_color color;
-  Graphics.fill_circle (col + 1) (row + 1) circle_size
-;;
+(* let draw_circle (row : int) (col : int) ~color = let open Constants in let
+   col = col * circle_size in let row = row * circle_size in
+   Graphics.set_color color; Graphics.fill_circle (col + 1) (row + 1)
+   circle_size ;; *)
 
 let draw_play_area () =
   let open Constants in
@@ -64,14 +61,18 @@ let draw_play_area () =
 ;;
 
 let draw_islands (game : Game.t) =
+  let open Constants in
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
-  Hashtbl.iter_keys map ~f:(fun island ->
-    let x, y = island.position in
-    let adjusted_x = x in
-    let adjusted_y = y in
+  Hashtbl.iter_keys map ~f:(fun island_1 ->
+    let x, y = island_1.position in
     Graphics.set_color Colors.green;
-    Graphics.fill_circle adjusted_x adjusted_y 10;
-    draw_circle adjusted_x adjusted_y ~color:Colors.red)
+    Graphics.fill_circle x y circle_size;
+    Graphics.set_color Colors.red;
+    Set.iter (Hashtbl.find_exn map island_1) ~f:(fun island_2 ->
+      let x_2, y_2 = island_2.position in
+      Graphics.moveto x y;
+      Graphics.set_line_width 3;
+      Graphics.lineto x_2 y_2))
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
@@ -159,11 +160,7 @@ let draw_board (game : Game.t) =
   draw_play_area ();
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect
-    0
-    (play_area_height - header_height)
-    play_area_width
-    header_height;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
   Graphics.moveto (play_area_width / 2) 80;
   Graphics.set_color Colors.red;
   let header_text = Game.Game_state.to_string game_state in
