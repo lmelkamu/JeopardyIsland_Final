@@ -222,7 +222,6 @@ let create_islands difficulty =
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
       G.add_vertex graph planet; let (x,y) = find_valid start in 
-      
       planet, x, y
       )
 
