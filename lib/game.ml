@@ -222,20 +222,17 @@ let create_islands difficulty =
     if (Float.( < )
     (Float.sqrt (Int.pow (closest_x - rand_x) 2 + Int.pow (closest_y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 5))) then (find_valid current_nodes max_islands) else find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands)
   ; in
-
-  let (start : Coordinate.t list) = [] in 
-  let nodes = 
+  let positions = find_valid [] size in
+  let islands = 
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
-      G.add_vertex graph planet; let (x,y) = find_valid (start @ [{name = name ;x = x;y = y}] ) in 
-      planet, x, y
+      G.add_vertex graph planet; let (x,y) = List.nth_exn positions idx in 
+      Island.create ~name:planet ~position:(x,y)
       )
 
   in
+  
   let%map questions = Question.get_questions size in
-  let islands =
-    List.map nodes ~f:(fun (planet, x, y) ->
-      Island.create ~name:planet ~position:(x,y)) in 
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
   islands,questions,graph,nodes
