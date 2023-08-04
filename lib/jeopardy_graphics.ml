@@ -127,6 +127,24 @@ let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
 ;;
 
+let handle_game_states_visually (game : Game.t) =
+  let open Constants in
+  let state = game.game_state in
+  match state with
+  | Start ->
+    Graphics.draw_rect 0 0 play_area_width play_area_height;
+    Graphics.moveto ((play_area_width / 2) - 70) (play_area_height / 2);
+    Graphics.draw_string
+      " Welcome to Jeopardy Island. Press Spacebar to Start"
+  | Game_over ->
+    Graphics.draw_rect 0 0 play_area_width play_area_height;
+    Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
+    Graphics.draw_string " Game Over"
+  | Answering _ -> draw_question_and_answers game
+  | Buzzing -> draw_question_and_answers game
+  | Selecting _ -> draw_islands game
+;;
+
 let draw_board (game : Game.t) =
   let open Constants in
   let player_one = game.player_one in
@@ -139,17 +157,20 @@ let draw_board (game : Game.t) =
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
-  draw_islands game;
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  Graphics.moveto (play_area_width / 3) (play_area_height + 50);
-  Graphics.set_color Colors.black;
+  Graphics.fill_rect
+    0
+    (play_area_height - header_height)
+    play_area_width
+    header_height;
+  Graphics.moveto (play_area_width / 2) 80;
+  Graphics.set_color Colors.red;
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width * 5 / 6) (play_area_height + 50);
+  Graphics.moveto (play_area_width * 4 / 5) (play_area_height - 20);
   Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
-  Graphics.moveto 20 (play_area_height + 50);
+  Graphics.moveto 20 (play_area_height - 20);
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)
@@ -160,7 +181,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
-  draw_question_and_answers game;
+  handle_game_states game;
   Graphics.display_mode true;
   Graphics.synchronize ()
 ;;
