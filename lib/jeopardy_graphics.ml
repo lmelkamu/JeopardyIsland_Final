@@ -65,7 +65,6 @@ let draw_play_area () =
 
 let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
-  print_s [%message (map : (Island.t, Island.Set.t) Hashtbl.t)];
   Hashtbl.iter_keys map ~f:(fun island ->
     let x, y = island.position in
     let adjusted_x = x in
@@ -99,13 +98,23 @@ let draw_islands (game : Game.t) =
 let draw_question_and_answers (game : Game.t) =
   let open Constants in
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
+  let rect_width = 600 in
+  let rect_height = 300 in
   let questions = game.questions in
   let question = List.hd_exn questions in
+  let question_string = question.question in
+  let question_string_legnth = String.length question_string in
   Graphics.set_text_size 16;
-  Graphics.fill_rect 200 300 400 200;
+  Graphics.fill_rect
+    ((play_area_width - rect_width) / 2)
+    ((play_area_height - rect_height) / 2)
+    rect_width
+    rect_height;
   Graphics.set_color Colors.red;
-  Graphics.moveto 200 350;
-  Graphics.draw_string question.question;
+  Graphics.moveto
+    ((play_area_width / 2) - (2 * question_string_legnth))
+    (play_area_height / 2);
+  Graphics.draw_string question_string;
   List.iteri
     (question.answers : string list)
     ~f:(fun idx answer ->
@@ -133,18 +142,21 @@ let draw_board (game : Game.t) =
   draw_islands game;
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  Graphics.moveto (play_area_width / 2) (play_area_height + 20);
+  Graphics.fill_rect
+    0
+    (play_area_height - header_height)
+    play_area_width
+    header_height;
+  Graphics.moveto (play_area_width / 2) 80;
+  Graphics.set_color Colors.red;
   let header_text = Game.Game_state.to_string game_state in
-  Graphics.set_color Colors.black;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 40) (play_area_height - 20);
+  Graphics.moveto (play_area_width * 4 / 5) (play_area_height - 20);
   Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
-  Graphics.moveto 40 (play_area_height - 20);
+  Graphics.moveto 20 (play_area_height - 20);
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)
-  Graphics.set_color Colors.head_color;
   Graphics.fill_rect 0 0 play_area_width header_height;
   (* Graphics.moveto right_shift (play_area_height - 70);
      Graphics.draw_string "A:"; Graphics.moveto ((play_area_width / 4) +
