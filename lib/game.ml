@@ -125,30 +125,29 @@ module My_components = Graph.Components.Make (G)
 
 
 
-let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
-  List.iter nodes ~f:(fun (node_1, x1, y1) ->
-    List.iter nodes ~f:(fun (node_2, x2, y2) ->
-      if String.equal node_1 node_2
+let create_graph ~graph ~(distance : float) ~(game:t)=
+  List.iter game.islands ~f:(fun island_1 ->
+    List.iter game.islands ~f:(fun island_2 ->
+      if String.equal island_1.name island_2.name
       then ()
       else (
+        let (x1,y1) = island_1.position in 
+        let (x2,y2) = island_2.position in
         let pythagoreum =
           Float.sqrt
             (Int.pow (x2 - x1) 2 + Int.pow (y2 - y1) 2 |> Float.of_int)
         in
         if Float.( < ) pythagoreum distance
-        then (G.add_edge graph node_1 node_2;
-        let island_1 = List.find_exn game.islands ~f:(fun island -> String.equal node_1 island.name) in 
-        let island_2 = List.find_exn game.islands ~f:(fun island -> String.equal node_2 island.name) in 
-
+        then (G.add_edge graph island_1.name island_2.name;
         Hashtbl.update game.map island_1 ~f:(fun set -> match set with |None -> Island.Set.singleton island_2 |Some nodes -> Set.add nodes island_2)))));
-  let islands = My_components.scc_list graph in
-  let island_count = List.length islands in
+  let distinct_islands = My_components.scc_list graph in
+  let island_count = List.length distinct_islands in
   if island_count > 1
   then
     List.range 0 (island_count - 2)
     |> List.iter ~f:(fun (island_number : int) ->
-      let island_1_name = List.random_element_exn (List.nth_exn islands island_number) in 
-      let island_2_name = List.random_element_exn (List.nth_exn islands (island_number + 1)) in 
+      let island_1_name = List.random_element_exn (List.nth_exn distinct_islands island_number) in 
+      let island_2_name = List.random_element_exn (List.nth_exn distinct_islands (island_number + 1)) in 
       let random_island_1 = List.find_exn game.islands ~f:(fun island -> String.equal island_1_name island.name) in 
         let random_island_2 = List.find_exn game.islands ~f:(fun island -> String.equal island_2_name island.name) in 
       G.add_edge
@@ -159,15 +158,6 @@ let create_graph ~graph ~nodes ~(distance : float) ~(game:t)=
         Hashtbl.update game.map random_island_2 ~f:(fun set -> match set with |None -> Island.Set.singleton random_island_1 |Some nodes -> Set.add nodes random_island_1))
   else ()
 ;;
-
-module Coordinate = struct
-  type t =  {
-    name : string;
-    x : int;
-    y : int
-  }
-  [@@deriving sexp, compare, hash]
-end
 
 (*Initialized the islands and outputs a graph*)
 let create_islands difficulty =
@@ -235,12 +225,12 @@ let create_islands difficulty =
   let%map questions = Question.get_questions size in
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
-  islands,questions,graph,nodes
+  islands,questions,graph
 ;;
 
 
 let create (difficulty: Level.t) = 
-  let%map (islands:Island.t list),(questions:Question.t),(graph:G.t),(nodes: (string*int*int) list) = create_islands difficulty in 
+  let%map (islands:Island.t list),(questions:Question.t),(graph:G.t) = create_islands difficulty in 
   let player_one = Player.create ~name:"Player_one" ~island:(List.nth_exn islands 0) in 
   let player_two = Player.create ~name:"Player_two" ~island:(List.nth_exn islands 1) in 
   let game = {
@@ -254,7 +244,7 @@ let create (difficulty: Level.t) =
     questions = questions;
     selected_island = None }
    in 
-    create_graph ~graph ~nodes ~distance:(20.0) ~game; 
+    create_graph ~graph ~distance:(20.0) ~game; 
    game
 ;;
 
