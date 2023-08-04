@@ -142,18 +142,14 @@ let draw_board (game : Game.t) =
   draw_islands game;
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect
-    0
-    (play_area_height - header_height)
-    play_area_width
-    header_height;
-  Graphics.moveto (play_area_width / 2) 80;
-  Graphics.set_color Colors.red;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
+  Graphics.moveto (play_area_width / 3) (play_area_height + 50);
+  Graphics.set_color Colors.black;
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width * 4 / 5) (play_area_height - 20);
+  Graphics.moveto (play_area_width * 5 / 6) (play_area_height + 50);
   Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
-  Graphics.moveto 20 (play_area_height - 20);
+  Graphics.moveto 20 (play_area_height + 50);
   Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)

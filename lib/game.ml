@@ -22,7 +22,6 @@ module Level = struct
 end
 
 module Game_state = struct
-  module T = struct
     type t = 
     |Start 
     |Game_over 
@@ -30,10 +29,15 @@ module Game_state = struct
     |Buzzing
     |Selecting of Player.t
     [@@deriving sexp]
+
+    let to_string t = match t with 
+    |Start -> "Start - Press Space to Begin"
+    |Game_over -> "Game over"
+    |Answering player ->  String.append player.name " is answering"
+    |Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
+    |Selecting player -> String.append player.name " is selecting the next island - press 't' to toggle and 'y' to select" ;;
   end
-include (T)
-include Sexpable.To_stringable(T)
-end
+
 
 
 
@@ -73,9 +77,9 @@ type t =
   ;;
   let update_buzzing (game:t) key = 
     match key with 
-    |'p' -> (game.curr_player <- game.player_one;
+    |'p' -> (game.curr_player <- game.player_two;
     game.game_state <- Game_state.Answering game.curr_player)
-    |'q' ->(game.curr_player <- game.player_two;
+    |'q' ->(game.curr_player <- game.player_one;
     game.game_state <- Game_state.Answering game.curr_player)
     | _ -> () ;;
 
@@ -101,17 +105,18 @@ type t =
   (* at this point, we need to remove all copies of current island from hashtbl *)
   let update_selecting (game:t) key = 
     match key with 
-    |'t' -> (let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in 
-    pointer:= (!pointer + 1)%(Set.length neighbors);
-    game.selected_island <- Some (Set.nth neighbors !pointer |> Option.value_exn) ;
-    game.game_state <- (Game_state.Selecting game.curr_player)) 
+    |'t' -> (match Hashtbl.find game.map game.curr_player.curr_island  with 
+    |None -> game.game_state <- Game_state.Game_over
+    |Some neighbors ->
+        (pointer:= (!pointer + 1)%(Set.length neighbors);
+          game.selected_island <- Some (Set.nth neighbors !pointer |> Option.value_exn) ;
+          game.game_state <- (Game_state.Selecting game.curr_player))) 
     |'y' -> (
-      Hashtbl.remove game.map game.curr_player.curr_island;
-    Hashtbl.iteri game.map ~f:(fun ~key:island ~data:neighbors -> Hashtbl.update game.map island ~f:(fun _ -> (Set.remove neighbors game.curr_player.curr_island)));
+    Hashtbl.remove game.map game.curr_player.curr_island;
+    Hashtbl.iter_keys game.map ~f:(fun island -> Hashtbl.update game.map island ~f:(fun neighbors -> (Set.remove (Option.value_exn neighbors) game.curr_player.curr_island)));
     game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
-    
     game.game_state <- Game_state.Buzzing
     )
     |_ -> ();;
@@ -202,26 +207,27 @@ let create_islands difficulty =
     ]
   in
 
-  let rec find_valid (current_nodes : Coordinate.t list ) : int * int = 
-    let rand_x =
+  let rec find_valid (current_nodes : (int *int) list) (max_islands: int): (int * int) list =
+    if List.length current_nodes = max_islands then current_nodes else
+    (let rand_x =
       (Int63.random (Int63.of_int (bound - (2 * right_left_margin))) |> Int63.to_int |> Option.value_exn |> Int.( * ) x_scale) + (Int.( * ) right_left_margin x_scale)
     in
     let rand_y =
-      (Int63.random (Int63.of_int (bound - (2 * up_down_margin))) |> Int63.to_int |> Option.value_exn |> Int.( * ) y_scale) + ((Int.( * ) up_down_margin x_scale))
+      (Int63.random (Int63.of_int (bound - (2 * up_down_margin))) |> Int63.to_int |> Option.value_exn |> Int.( * ) y_scale) + ((Int.( * ) up_down_margin y_scale))
     in
-    let closest_coordinate = List.min_elt (current_nodes) ~compare:(fun point_one point_two -> let distance_one = (Float.sqrt
-    (Int.pow (point_one.x - rand_x) 2 + Int.pow (point_one.y - rand_y) 2 |> Float.of_int)) in let distance_two = 
-    (Float.sqrt (Int.pow (point_two.x - rand_x) 2 + Int.pow (point_two.y - rand_y) 2 |> Float.of_int)) in Int.of_float (distance_two -. distance_one)) in 
-    if (is_none closest_coordinate) then (rand_x,rand_y) else let coord = Option.value_exn closest_coordinate in 
+    let (closest_coordinate) = List.min_elt (current_nodes) ~compare:(fun (x1,y1) (x2,y2) -> let distance_one = (Float.sqrt
+    (Int.pow (x1 - rand_x) 2 + Int.pow (y1 - rand_y) 2 |> Float.of_int)) in let distance_two = 
+    (Float.sqrt (Int.pow (x2 - rand_x) 2 + Int.pow (y2 - rand_y) 2 |> Float.of_int)) in Int.of_float (Float.min distance_one distance_two)) in 
+    if (is_none closest_coordinate) then find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands else let (closest_x, closest_y) = Option.value_exn closest_coordinate in 
     if (Float.( < )
-    (Float.sqrt (Int.pow (coord.x - rand_x) 2 + Int.pow (coord.y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 5))) then (find_valid current_nodes) else (rand_x, rand_y)
+    (Float.sqrt (Int.pow (closest_x - rand_x) 2 + Int.pow (closest_y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 5))) then (find_valid current_nodes max_islands) else find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands)
   ; in
 
   let (start : Coordinate.t list) = [] in 
   let nodes = 
     List.map (List.range 0 size) ~f:(fun idx ->
       let planet = List.nth_exn solar_system idx in
-      G.add_vertex graph planet; let (x,y) = find_valid start in 
+      G.add_vertex graph planet; let (x,y) = find_valid (start @ [{name = name ;x = x;y = y}] ) in 
       planet, x, y
       )
 
