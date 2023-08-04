@@ -31,7 +31,7 @@ module Game_state = struct
     [@@deriving sexp]
 
     let to_string t = match t with 
-    |Start -> "Start - Press Space to Begin"
+    |Start -> "Jeopardy Island!!"
     |Game_over -> "Game over"
     |Answering player ->  String.append player.name " is answering"
     |Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
@@ -113,7 +113,8 @@ type t =
           game.game_state <- (Game_state.Selecting game.curr_player))) 
     |'y' -> (
     Hashtbl.remove game.map game.curr_player.curr_island;
-    Hashtbl.iter_keys game.map ~f:(fun island -> Hashtbl.update game.map island ~f:(fun neighbors -> (Set.remove (Option.value_exn neighbors) game.curr_player.curr_island)));
+    let map_copy = Hashtbl.copy game.map in
+    Hashtbl.iter_keys map_copy ~f:(fun island -> Hashtbl.update game.map island ~f:(fun neighbors -> (Set.remove (Option.value_exn neighbors) game.curr_player.curr_island)));
     game.curr_player.curr_island <- Option.value_exn game.selected_island;
     game.selected_island <- None;
     pointer:= -1;
