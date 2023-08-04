@@ -7,9 +7,9 @@ module Colors = struct
   let green = Graphics.rgb 000 255 000
   let head_color = Graphics.rgb 100 100 125
   let red = Graphics.rgb 255 000 000
-  (* let gold = Graphics.rgb 255 223 0 let game_in_progress = Graphics.rgb
-     100 100 200 let game_lost = Graphics.rgb 200 100 100 let game_won =
-     Graphics.rgb 100 200 100 *)
+  let gold = Graphics.rgb 255 223 0
+  (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
+     Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
 
 (* These constants are optimized for running on a low-resolution screen. Feel
@@ -49,10 +49,11 @@ let init_exn () =
   Game.create Game.Level.T.Easy
 ;;
 
-(* let draw_circle (row : int) (col : int) ~color = let open Constants in let
-   col = col * circle_size in let row = row * circle_size in
-   Graphics.set_color color; Graphics.fill_circle (col + 1) (row + 1)
-   circle_size ;; *)
+let draw_circle (x : int) (y : int) ~color =
+  let open Constants in
+  Graphics.set_color color;
+  Graphics.fill_circle x y circle_size
+;;
 
 let draw_play_area () =
   let open Constants in
@@ -61,12 +62,10 @@ let draw_play_area () =
 ;;
 
 let draw_islands (game : Game.t) =
-  let open Constants in
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island_1 ->
     let x, y = island_1.position in
-    Graphics.set_color Colors.green;
-    Graphics.fill_circle x y circle_size;
+    draw_circle x y ~color:Colors.green;
     Graphics.set_color Colors.red;
     Set.iter (Hashtbl.find_exn map island_1) ~f:(fun island_2 ->
       let x_2, y_2 = island_2.position in
@@ -143,7 +142,13 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.draw_string " Game Over"
   | Answering _ -> draw_question_and_answers game
   | Buzzing -> draw_question_and_answers game
-  | Selecting _ -> draw_islands game
+  | Selecting _ ->
+    draw_islands game;
+    (match game.selected_island with
+     | None -> ()
+     | Some island ->
+       let x, y = island.position in
+       draw_circle x y ~color:Colors.gold)
 ;;
 
 let draw_board (game : Game.t) =
