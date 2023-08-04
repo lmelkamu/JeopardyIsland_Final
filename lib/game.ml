@@ -175,8 +175,8 @@ let create_islands difficulty =
   let y_scale = 8 in 
   let graph = G.create () in
   let bound = 100 in 
-  let right_left_margin = 2 in 
-  let up_down_margin = 2 in 
+  let right_left_margin = 3 in 
+  let up_down_margin = 3 in 
   let size =
     match difficulty with
     | Level.Easy -> 10
