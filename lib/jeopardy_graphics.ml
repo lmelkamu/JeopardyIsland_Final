@@ -8,7 +8,7 @@ module Colors = struct
   let head_color = Graphics.rgb 100 100 125
   let red = Graphics.rgb 255 000 000
   let gold = Graphics.rgb 255 223 0
-  let blue = Graphics.rgb 0 0 255
+  let blue = Graphics.rgb 150 150 255
   let purple = Graphics.rgb 100 0 100
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
@@ -66,7 +66,7 @@ let draw_circle (x : int) (y : int) ~color =
 
 let draw_play_area () =
   let open Constants in
-  Graphics.set_color Colors.blue;
+  Graphics.set_color Colors.black;
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
@@ -74,13 +74,15 @@ let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island_1 ->
     let x, y = island_1.position in
-    draw_circle x y ~color:Colors.green;
     Graphics.set_color Colors.red;
     Set.iter (Hashtbl.find_exn map island_1) ~f:(fun island_2 ->
       let x_2, y_2 = island_2.position in
       Graphics.moveto x y;
       Graphics.set_line_width 3;
       Graphics.lineto x_2 y_2));
+  Hashtbl.iter_keys map ~f:(fun island_1 ->
+    let x, y = island_1.position in
+    draw_circle x y ~color:Colors.green);
   let player_one_island = game.player_one.curr_island in
   let p_1_x, p_1_y = player_one_island.position in
   draw_circle p_1_x p_1_y ~color:Colors.purple;
@@ -169,7 +171,7 @@ let draw_question_and_answers (game : Game.t) =
     (question.answers : string list)
     ~f:(fun idx answer ->
       let answer_choice = List.nth_exn choices idx in
-      Graphics.moveto (20 + (play_area_width * idx / 4)) 20;
+      Graphics.moveto (20 + (play_area_width * idx / 4)) 0;
       Graphics.draw_string (String.append answer_choice answer))
 ;;
 
@@ -182,16 +184,15 @@ let handle_game_states_visually (game : Game.t) =
   let state = game.game_state in
   match state with
   | Start ->
-    Graphics.draw_rect 0 0 play_area_width play_area_height;
     Graphics.moveto ((play_area_width / 2) - 70) (play_area_height / 2);
     Graphics.draw_string
       " Welcome to Jeopardy Island. Press Spacebar to Start"
   | Game_over ->
-    Graphics.draw_rect 0 0 play_area_width play_area_height;
     Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
     Graphics.draw_string " Game Over"
-  | Answering _ -> draw_question_and_answers game
-  | Buzzing -> draw_question_and_answers game
+  | Answering _ | Buzzing ->
+    draw_islands game;
+    draw_question_and_answers game
   | Selecting _ ->
     draw_islands game;
     (match game.selected_island with
