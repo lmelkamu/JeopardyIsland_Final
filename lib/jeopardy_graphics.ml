@@ -145,8 +145,8 @@ let%expect_test _ =
 let draw_question_and_answers (game : Game.t) =
   let open Constants in
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
-  let rect_width = 600 in
-  let rect_height = 300 in
+  let rect_width = 300 in
+  let rect_height = 200 in
   let questions = game.questions in
   let question = List.hd_exn questions in
   let question_string = question.question in
@@ -162,7 +162,7 @@ let draw_question_and_answers (game : Game.t) =
   Graphics.set_color Colors.red;
   List.iteri word_separations ~f:(fun line_number line ->
     Graphics.moveto
-      ((play_area_width / 2) - (2 * String.length line))
+      ((play_area_width / 2) - (6 * String.length line))
       ((play_area_height / 2) - (20 * line_number));
     Graphics.draw_string line);
   List.iteri
@@ -213,16 +213,18 @@ let draw_board (game : Game.t) =
      "-adobe-courier-medium-r-*-*-18-*-*-*-*-70-iso8859-1"; *)
   (* Graphics.set_font
      "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1"; *)
-  Graphics.set_font "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1";
+  Graphics.set_font "-adobe-courier-medium-r-normal--18-0-0-0-m-0-iso8859-1";
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
   Graphics.fill_rect 0 play_area_height play_area_width header_height;
-  Graphics.moveto (play_area_width / 3) (play_area_height + 50);
-  Graphics.set_color Colors.red;
   let header_text = Game.Game_state.to_string game_state in
+  Graphics.moveto
+    ((play_area_width / 2) - (6 * String.length header_text))
+    (play_area_height + 20);
+  Graphics.set_color Colors.red;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto (play_area_width * 4 / 5) (play_area_height + 50);
   Graphics.draw_string
@@ -239,7 +241,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
-  Graphics.set_font "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1";
+  Graphics.set_font "-adobe-courier-medium-r-normal--12-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
   Graphics.synchronize ()
