@@ -209,7 +209,9 @@ let draw_board (game : Game.t) =
   let player_two_score = player_two.points in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
-  Graphics.set_font "-*-fixed-medium-r-semicondensed--16-*-*-*-*-*-iso8859-1";
+  Graphics.set_font "-adobe-courier-medium-r-*-*-18-*-*-*-*-70-iso8859-1";
+  Graphics.set_font
+    "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1";
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
