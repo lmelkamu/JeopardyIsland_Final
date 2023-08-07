@@ -209,9 +209,11 @@ let draw_board (game : Game.t) =
   let player_two_score = player_two.points in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
-  Graphics.set_font "-adobe-courier-medium-r-*-*-18-*-*-*-*-70-iso8859-1";
-  Graphics.set_font
-    "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1";
+  (* Graphics.set_font
+     "-adobe-courier-medium-r-*-*-18-*-*-*-*-70-iso8859-1"; *)
+  (* Graphics.set_font
+     "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1"; *)
+  Graphics.set_font "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1";
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
@@ -237,6 +239,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
+  Graphics.set_font "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
   Graphics.synchronize ()

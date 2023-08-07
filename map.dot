@@ -6,6 +6,7 @@ digraph G {
   Ganymede [fillcolor="#0003E8", label="Ganymede", shape=box, ];
   Rhea [fillcolor="#0003E8", label="Rhea", shape=box, ];
   Titan [fillcolor="#0003E8", label="Titan", shape=box, ];
+  Nova-9 [fillcolor="#0003E8", label="Nova-9", shape=box, ];
   Moon [fillcolor="#0003E8", label="Moon", shape=box, ];
   Sun [fillcolor="#0003E8", label="Sun", shape=box, ];
   Astronova [fillcolor="#0003E8", label="Astronova", shape=box, ];
@@ -13,15 +14,19 @@ digraph G {
   Venus [fillcolor="#0003E8", label="Venus", shape=box, ];
   Hoth [fillcolor="#0003E8", label="Hoth", shape=box, ];
   Iapetus [fillcolor="#0003E8", label="Iapetus", shape=box, ];
+  Lunaris [fillcolor="#0003E8", label="Lunaris", shape=box, ];
   Titania [fillcolor="#0003E8", label="Titania", shape=box, ];
   Jupiter [fillcolor="#0003E8", label="Jupiter", shape=box, ];
   Europa [fillcolor="#0003E8", label="Europa", shape=box, ];
+  Caelum [fillcolor="#0003E8", label="Caelum", shape=box, ];
   Callisto [fillcolor="#0003E8", label="Callisto", shape=box, ];
   Zephyrion [fillcolor="#0003E8", label="Zephyrion", shape=box, ];
   Dimidium [fillcolor="#0003E8", label="Dimidium", shape=box, ];
+  Thalassia [fillcolor="#0003E8", label="Thalassia", shape=box, ];
   Veridian Prime [fillcolor="#0003E8", label="Veridian Prime", shape=box, ];
   Pluto [fillcolor="#0003E8", label="Pluto", shape=box, ];
   Mars [fillcolor="#0003E8", label="Mars", shape=box, ];
+  Epsilon Eridani [fillcolor="#0003E8", label="Epsilon Eridani", shape=box, ];
   Io [fillcolor="#0003E8", label="Io", shape=box, ];
   Triton [fillcolor="#0003E8", label="Triton", shape=box, ];
   
