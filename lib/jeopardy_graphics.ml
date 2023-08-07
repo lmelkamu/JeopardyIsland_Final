@@ -38,7 +38,7 @@ end
 
 let only_one : bool ref = ref false
 
-let init_exn () =
+let init_exn level_num player_one player_two =
   let open Constants in
   (* Should raise if called twice *)
   if !only_one
@@ -49,7 +49,14 @@ let init_exn () =
        " %dx%d"
        play_area_width
        (play_area_height + header_height));
-  Game.create Game.Level.T.Easy
+  let level =
+    match level_num with
+    | 1 -> Game.Level.T.Easy
+    | 2 -> Game.Level.T.Medium
+    | 3 -> Game.Level.T.Hard
+    | _ -> Game.Level.T.Easy
+  in
+  Game.create level player_one player_two
 ;;
 
 let draw_circle (x : int) (y : int) ~color =
@@ -216,9 +223,11 @@ let draw_board (game : Game.t) =
   let header_text = Game.Game_state.to_string game_state in
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto (play_area_width * 4 / 5) (play_area_height + 50);
-  Graphics.draw_string (Printf.sprintf "Player_2 Score: %d" player_two_score);
+  Graphics.draw_string
+    [%string "%{player_two.name} Score: %{player_two_score#Int}"];
   Graphics.moveto 20 (play_area_height + 50);
-  Graphics.draw_string (Printf.sprintf "Player_1 Score: %d" player_one_score);
+  Graphics.draw_string
+    [%string "%{player_one.name} Score: %{player_one_score#Int}"];
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)
   Graphics.fill_rect 0 0 play_area_width header_height;
