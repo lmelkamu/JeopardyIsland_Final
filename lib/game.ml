@@ -258,46 +258,25 @@ let create_islands difficulty =
     if List.length current_nodes = max_islands
     then current_nodes
     else (
-      let rand_x =
-        (Int63.random (Int63.of_int (bound - (2 * right_left_margin)))
-         |> Int63.to_int
-         |> Option.value_exn
-         |> Int.( * ) x_scale)
-        + Int.( * ) right_left_margin x_scale
+      let rand_coordinate margin scale =
+        let rand_int =
+          Int63.random (Int63.of_int (bound - (2 * margin)))
+          |> Int63.to_int_exn
+        in
+        scale * (rand_int + margin)
       in
-      let rand_y =
-        (Int63.random (Int63.of_int (bound - (2 * up_down_margin)))
-         |> Int63.to_int
-         |> Option.value_exn
-         |> Int.( * ) y_scale)
-        + Int.( * ) up_down_margin y_scale
+      let rand_x = rand_coordinate right_left_margin x_scale in
+      let rand_y = rand_coordinate up_down_margin y_scale in
+      let squared_dist (x, y) =
+        Int.pow (x - rand_x) 2 + Int.pow (y - rand_y) 2
       in
-      let closest_coordinate =
-        List.min_elt current_nodes ~compare:(fun (x1, y1) (x2, y2) ->
-          let distance_one =
-            Float.sqrt
-              (Int.pow (x1 - rand_x) 2 + Int.pow (y1 - rand_y) 2
-               |> Float.of_int)
-          in
-          let distance_two =
-            Float.sqrt
-              (Int.pow (x2 - rand_x) 2 + Int.pow (y2 - rand_y) 2
-               |> Float.of_int)
-          in
-          Int.of_float (Float.min distance_one distance_two))
+      let is_too_close =
+        List.exists current_nodes ~f:(fun (x, y) ->
+          squared_dist (x, y) < 4000)
       in
-      if is_none closest_coordinate
-      then find_valid (current_nodes @ [ rand_x, rand_y ]) max_islands
-      else (
-        let closest_x, closest_y = Option.value_exn closest_coordinate in
-        if Float.( < )
-             (Float.sqrt
-                (Int.pow (closest_x - rand_x) 2
-                 + Int.pow (closest_y - rand_y) 2
-                 |> Float.of_int))
-             (Float.sqrt (Float.of_int 5))
-        then find_valid current_nodes max_islands
-        else find_valid (current_nodes @ [ rand_x, rand_y ]) max_islands))
+      if is_too_close
+      then find_valid current_nodes max_islands
+      else find_valid (current_nodes @ [ rand_x, rand_y ]) max_islands)
   in
   let positions = find_valid [] size in
   let islands =
