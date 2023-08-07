@@ -22,7 +22,6 @@ module Constants = struct
   let header_height = 100. *. scaling_factor |> Float.iround_down_exn
   let play_area_width = 1000. *. scaling_factor |> Float.iround_down_exn
   let circle_size = 25. *. scaling_factor |> Float.iround_down_exn
-  let text_size = 60
 end
 
 (* let draw_header ~game_state score = let open Constants in let header_color
@@ -155,7 +154,6 @@ let draw_question_and_answers (game : Game.t) =
      number_of_words in *)
   let word_separations = split_string question_string 20 in
   (* print_s [%message (word_separations : string list * string list)]; *)
-  Graphics.set_text_size text_size;
   Graphics.fill_rect
     ((play_area_width - rect_width) / 2)
     ((play_area_height - rect_height) / 2)
@@ -165,7 +163,7 @@ let draw_question_and_answers (game : Game.t) =
   List.iteri word_separations ~f:(fun line_number line ->
     Graphics.moveto
       ((play_area_width / 2) - (2 * String.length line))
-      ((play_area_height / 2) - (10 * line_number));
+      ((play_area_height / 2) - (20 * line_number));
     Graphics.draw_string line);
   List.iteri
     (question.answers : string list)
@@ -211,7 +209,7 @@ let draw_board (game : Game.t) =
   let player_two_score = player_two.points in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
-  Graphics.set_text_size text_size;
+  Graphics.set_font "-*-fixed-medium-r-semicondensed--16-*-*-*-*-*-iso8859-1";
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
