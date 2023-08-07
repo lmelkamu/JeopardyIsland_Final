@@ -286,10 +286,24 @@ let create_islands difficulty =
       let x, y = List.nth_exn positions idx in
       Island.create ~name:planet ~position:(x, y))
   in
+  let leftmost, rightmost =
+    List.fold
+      islands
+      ~init:
+        ( Island.create ~name:"small" ~position:(Int.max_value, Int.max_value)
+        , Island.create ~name:"big" ~position:(0, 0) )
+      ~f:(fun (small, big) island ->
+        let min_x, _ = small.position in
+        let max_x, _ = big.position in
+        let x, _ = island.position in
+        let new_min = if x < min_x then island else small in
+        let new_max = if x > max_x then island else big in
+        new_min, new_max)
+  in
   let%map questions = Question.get_questions size in
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
-  islands, questions, graph
+  islands, questions, graph, leftmost, rightmost
 ;;
 
 let create
@@ -297,15 +311,16 @@ let create
   (player_1_name : string)
   (player_2_name : string)
   =
-  let%map (islands : Island.t list), (questions : Question.t), (graph : G.t) =
+  let%map ( (islands : Island.t list)
+          , (questions : Question.t)
+          , (graph : G.t)
+          , (leftmost : Island.t)
+          , (rightmost : Island.t) )
+    =
     create_islands difficulty
   in
-  let player_one =
-    Player.create ~name:player_1_name ~island:(List.nth_exn islands 0)
-  in
-  let player_two =
-    Player.create ~name:player_2_name ~island:(List.nth_exn islands 1)
-  in
+  let player_one = Player.create ~name:player_1_name ~island:leftmost in
+  let player_two = Player.create ~name:player_2_name ~island:rightmost in
   let game =
     { player_one
     ; player_two

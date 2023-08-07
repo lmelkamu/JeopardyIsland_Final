@@ -66,7 +66,7 @@ let draw_circle (x : int) (y : int) ~color =
 
 let draw_play_area () =
   let open Constants in
-  Graphics.set_color Colors.black;
+  Graphics.set_color Colors.blue;
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
