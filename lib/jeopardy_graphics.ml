@@ -22,6 +22,7 @@ module Constants = struct
   let header_height = 100. *. scaling_factor |> Float.iround_down_exn
   let play_area_width = 1000. *. scaling_factor |> Float.iround_down_exn
   let circle_size = 25. *. scaling_factor |> Float.iround_down_exn
+  let text_size = 60
 end
 
 (* let draw_header ~game_state score = let open Constants in let header_color
@@ -103,6 +104,38 @@ let draw_islands (game : Game.t) =
    draw_snake (Snake.head snake_two) (Snake.tail snake_two);
    Graphics.display_mode true; Graphics.synchronize () ;; *)
 
+(* take the string, split based on the character number, and then return the
+   split list*)
+let split_string (words : string) (number_of_chars : int) : string list =
+  let word_split = String.split words ~on:' ' in
+  let _, last_section, rev_words_list =
+    List.fold
+      word_split
+      ~init:(0, [], [])
+      ~f:(fun (current_count, current_words, whole_list) word ->
+        let word_length = String.length word in
+        if current_count + word_length > number_of_chars
+        then word_length, [ word ], List.rev current_words :: whole_list
+        else current_count + word_length, word :: current_words, whole_list)
+  in
+  let rev_words_list = List.rev last_section :: rev_words_list in
+  let words_list = List.rev rev_words_list in
+  List.map words_list ~f:(String.concat ~sep:" ")
+;;
+
+let%expect_test _ =
+  let words =
+    "Hi my name is Roman, I want to know how this function works"
+  in
+  let words_list = split_string words 15 in
+  print_s [%message (words_list : string list)];
+  return
+    [%expect
+      {|
+    (words_list
+     ("Hi my name is" "Roman, I want to" "know how this" "function works")) |}]
+;;
+
 let draw_question_and_answers (game : Game.t) =
   let open Constants in
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
@@ -111,18 +144,22 @@ let draw_question_and_answers (game : Game.t) =
   let questions = game.questions in
   let question = List.hd_exn questions in
   let question_string = question.question in
-  let question_string_legnth = String.length question_string in
-  Graphics.set_text_size 16;
+  (* let word_split = String.split words ~on:' ' in List.split_n word_split
+     number_of_words in *)
+  let word_separations = split_string question_string 20 in
+  (* print_s [%message (word_separations : string list * string list)]; *)
+  Graphics.set_text_size text_size;
   Graphics.fill_rect
     ((play_area_width - rect_width) / 2)
     ((play_area_height - rect_height) / 2)
     rect_width
     rect_height;
   Graphics.set_color Colors.red;
-  Graphics.moveto
-    ((play_area_width / 2) - (2 * question_string_legnth))
-    (play_area_height / 2);
-  Graphics.draw_string question_string;
+  List.iteri word_separations ~f:(fun line_number line ->
+    Graphics.moveto
+      ((play_area_width / 2) - (2 * String.length line))
+      ((play_area_height / 2) - (10 * line_number));
+    Graphics.draw_string line);
   List.iteri
     (question.answers : string list)
     ~f:(fun idx answer ->
@@ -167,7 +204,7 @@ let draw_board (game : Game.t) =
   let player_two_score = player_two.points in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
-  Graphics.set_text_size 20;
+  Graphics.set_text_size text_size;
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();

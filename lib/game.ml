@@ -200,9 +200,8 @@ let create_islands difficulty =
     ; "Oberon"
     ; "Dimidium"
     ; "Hoth"
-    ;
-  "Astronova";
-  "Veridian Prime";
+    ; "Astronova"
+    ; "Veridian Prime";
   "Zephyrion";
   "Lunaris";
   "Thalassia";
@@ -243,7 +242,7 @@ let create_islands difficulty =
     (Float.sqrt (Int.pow (x2 - rand_x) 2 + Int.pow (y2 - rand_y) 2 |> Float.of_int)) in Int.of_float (Float.min distance_one distance_two)) in 
     if (is_none closest_coordinate) then find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands else let (closest_x, closest_y) = Option.value_exn closest_coordinate in 
     if (Float.( < )
-    (Float.sqrt (Int.pow (closest_x - rand_x) 2 + Int.pow (closest_y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 5))) then (find_valid current_nodes max_islands) else find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands)
+    (Float.sqrt (Int.pow (closest_x - rand_x) 2 + Int.pow (closest_y - rand_y) 2 |> Float.of_int)) (Float.sqrt (Float.of_int 50))) then (find_valid current_nodes max_islands) else find_valid (current_nodes @ [(rand_x,rand_y)]) max_islands)
   ; in
   let positions = find_valid [] size in
   let islands = 

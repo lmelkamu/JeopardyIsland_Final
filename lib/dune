@@ -10,6 +10,7 @@
   ppxlib
   jsonaf
   graphics)
+ (inline_tests)
  (preprocess
   (pps ppx_jane ppx_jsonaf_conv))
  (name JeopardyIsland_Final))
