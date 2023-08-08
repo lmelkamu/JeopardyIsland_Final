@@ -4,14 +4,12 @@ open! Graphics
 
 module Colors = struct
   let black = Graphics.rgb 000 000 000
-  let green = Graphics.rgb 137 177 096
-  let orange = Graphics.rgb 229 143 101
-  let head_color = Graphics.rgb 204 176 136
-  let _red = Graphics.rgb 255 000 000
+  let green = Graphics.rgb 000 255 000
+  let head_color = Graphics.rgb 100 100 125
+  let red = Graphics.rgb 255 000 000
   let gold = Graphics.rgb 255 223 0
-  let blue = Graphics.rgb 056 134 151
+  let blue = Graphics.rgb 0 0 255
   let purple = Graphics.rgb 100 0 100
-  let white = Graphics.rgb 225 225 225
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
@@ -19,10 +17,11 @@ end
 (* These constants are optimized for running on a low-resolution screen. Feel
    free to increase the scaling factor to tweak! *)
 module Constants = struct
-  let play_area_height = 900
-  let header_height = 100
-  let play_area_width = 1000
-  let circle_size = 25
+  let scaling_factor = 1.
+  let play_area_height = 800. *. scaling_factor |> Float.iround_down_exn
+  let header_height = 100. *. scaling_factor |> Float.iround_down_exn
+  let play_area_width = 1000. *. scaling_factor |> Float.iround_down_exn
+  let circle_size = 25. *. scaling_factor |> Float.iround_down_exn
 end
 
 (* let draw_header ~game_state score = let open Constants in let header_color
@@ -45,7 +44,10 @@ let init_exn level_num player_one player_two =
   then failwith "Can only call init_exn once"
   else only_one := true;
   Graphics.open_graph
-    (Printf.sprintf " %dx%d" play_area_width play_area_height);
+    (Printf.sprintf
+       " %dx%d"
+       play_area_width
+       (play_area_height + header_height));
   let level =
     match level_num with
     | 1 -> Game.Level.T.Easy
@@ -64,7 +66,7 @@ let draw_circle (x : int) (y : int) ~color =
 
 let draw_play_area () =
   let open Constants in
-  Graphics.set_color Colors.blue;
+  Graphics.set_color Colors.black;
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
@@ -81,15 +83,13 @@ let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island_1 ->
     let x, y = island_1.position in
-    Graphics.set_color Colors.white;
+    draw_circle x y ~color:Colors.green;
+    Graphics.set_color Colors.red;
     Set.iter (Hashtbl.find_exn map island_1) ~f:(fun island_2 ->
       let x_2, y_2 = island_2.position in
       Graphics.moveto x y;
       Graphics.set_line_width 3;
       Graphics.lineto x_2 y_2));
-  Hashtbl.iter_keys map ~f:(fun island_1 ->
-    let x, y = island_1.position in
-    draw_circle x y ~color:Colors.green);
   let player_one_island = game.player_one.curr_island in
   let p_1_x, p_1_y = player_one_island.position in
   draw_circle p_1_x p_1_y ~color:Colors.purple;
@@ -159,7 +159,7 @@ let%expect_test _ =
 let draw_question_and_answers (game : Game.t) =
   let open Constants in
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
-  let rect_width = 300 in
+  let rect_width = 200 in
   let rect_height = 200 in
   let questions = game.questions in
   let question = List.hd_exn questions in
@@ -168,23 +168,22 @@ let draw_question_and_answers (game : Game.t) =
      number_of_words in *)
   let word_separations = split_string question_string 20 in
   (* print_s [%message (word_separations : string list * string list)]; *)
-  Graphics.set_color Colors.head_color;
   Graphics.fill_rect
     ((play_area_width - rect_width) / 2)
     ((play_area_height - rect_height) / 2)
     rect_width
     rect_height;
-  Graphics.set_color Colors.black;
+  Graphics.set_color Colors.red;
   List.iteri word_separations ~f:(fun line_number line ->
     Graphics.moveto
-      ((play_area_width / 2) - (6 * String.length line))
-      ((play_area_height / 2) - (20 * line_number));
+      ((play_area_width / 2) - (3 * String.length line))
+      ((play_area_height / 2) - (18 * line_number));
     Graphics.draw_string line);
   List.iteri
     (question.answers : string list)
     ~f:(fun idx answer ->
       let answer_choice = List.nth_exn choices idx in
-      Graphics.moveto (20 + (play_area_width * idx / 4)) 50;
+      Graphics.moveto (20 + (play_area_width * idx / 4)) 20;
       Graphics.draw_string (String.append answer_choice answer))
 ;;
 
@@ -197,15 +196,16 @@ let handle_game_states_visually (game : Game.t) =
   let state = game.game_state in
   match state with
   | Start ->
-    Graphics.moveto ((play_area_width / 2) - 200) (play_area_height / 2);
+    Graphics.draw_rect 0 0 play_area_width play_area_height;
+    Graphics.moveto ((play_area_width / 2) - 70) (play_area_height / 2);
     Graphics.draw_string
       " Welcome to Jeopardy Island. Press Spacebar to Start"
   | Game_over ->
+    Graphics.draw_rect 0 0 play_area_width play_area_height;
     Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
     Graphics.draw_string " Game Over"
-  | Answering _ | Buzzing ->
-    draw_islands game;
-    draw_question_and_answers game
+  | Answering _ -> draw_question_and_answers game
+  | Buzzing -> draw_question_and_answers game
   | Selecting _ ->
     draw_islands game;
     (match game.selected_island with
@@ -215,12 +215,17 @@ let handle_game_states_visually (game : Game.t) =
        draw_circle x y ~color:Colors.gold)
 ;;
 
+(* used to move the player two score over to the right so it remains aligned
+   with the right edge of the screen*)
+let rec num_length num = if abs num < 10 then 1 else 1 + num_length (num / 10)
+
 let draw_board (game : Game.t) =
   let open Constants in
   let player_one = game.player_one in
   let player_two = game.player_two in
   let player_one_score = player_one.points in
   let player_two_score = player_two.points in
+  let player_two_score_length = num_length player_two_score in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
   (* Graphics.set_font
@@ -233,21 +238,20 @@ let draw_board (game : Game.t) =
   draw_play_area ();
   (* box 2: top header *)
   Graphics.set_color Colors.head_color;
-  Graphics.fill_rect
-    0
-    (play_area_height - header_height)
-    play_area_width
-    header_height;
+  Graphics.fill_rect 0 play_area_height play_area_width header_height;
   let header_text = Game.Game_state.to_string game_state in
+  let header_text_length = String.length header_text in
   Graphics.moveto
-    ((play_area_width / 2) - (6 * String.length header_text))
-    (play_area_height - 75);
-  Graphics.set_color Colors.black;
+    ((play_area_width / 2) - (5 * header_text_length))
+    (play_area_height + 20);
+  Graphics.set_color Colors.red;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 150) (play_area_height - 50);
+  Graphics.moveto
+    (play_area_width - 130 - (5 * player_two_score_length))
+    (play_area_height + 50);
   Graphics.draw_string
     [%string "%{player_two.name} Score: %{player_two_score#Int}"];
-  Graphics.moveto 20 (play_area_height - 50);
+  Graphics.moveto 20 (play_area_height + 50);
   Graphics.draw_string
     [%string "%{player_one.name} Score: %{player_one_score#Int}"];
   Graphics.set_color Colors.head_color;
@@ -259,7 +263,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
-  Graphics.set_font "-adobe-courier-medium-r-normal--16-0-0-0-m-0-iso8859-1";
+  Graphics.set_font "-adobe-courier-medium-r-normal--18-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
   Graphics.synchronize ()
