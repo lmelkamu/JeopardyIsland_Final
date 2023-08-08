@@ -25,12 +25,13 @@ module Game_state = struct
     | Answering of Player.t
     | Buzzing
     | Selecting of Player.t * int option
+    | Correct_answer of bool
   [@@deriving sexp]
 
   let to_string t =
     match t with
     | Start -> "Jeopardy Island!!"
-    | Game_over -> "Game over"
+    | Game_over -> ""
     | Answering player -> String.append player.name " is answering"
     | Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
     | Selecting (player, _) ->
@@ -38,6 +39,8 @@ module Game_state = struct
         player.name
         " is selecting the next island - press 't' to toggle and 'y' to \
          select"
+    | Correct_answer is_correct ->
+      if is_correct then "Correct" else "Incorrect"
   ;;
 end
 
@@ -96,15 +99,21 @@ let update_buzzing (game : t) key =
 let update_answer (game : t) key =
   match key with
   | 'a' | 'b' | 'c' | 'd' ->
-    if Question.is_correct (List.hd_exn game.questions) key
-    then (
-      game.game_state <- Game_state.Selecting (game.curr_player, None);
-      game.curr_player.points <- game.curr_player.points + 3)
-    else (
-      game.curr_player.points <- game.curr_player.points - 3;
-      game.curr_player <- swap_player game.curr_player game;
-      game.game_state <- Game_state.Selecting (game.curr_player, None))
+    game.game_state
+      <- Game_state.Correct_answer
+           (Question.is_correct (List.hd_exn game.questions) key)
   | _ -> ()
+;;
+
+let update_correct (game : t) (is_correct : bool) =
+  if is_correct
+  then (
+    game.game_state <- Game_state.Selecting (game.curr_player, None);
+    game.curr_player.points <- game.curr_player.points + 3)
+  else (
+    game.curr_player.points <- game.curr_player.points - 3;
+    game.curr_player <- swap_player game.curr_player game;
+    game.game_state <- Game_state.Selecting (game.curr_player, None))
 ;;
 
 (* at this point, we need to remove all copies of current island from
@@ -362,5 +371,6 @@ let handle_key (game : t) key =
   | Answering _ -> update_answer game key
   | Buzzing -> update_buzzing game key
   | Selecting (_, index) -> update_selecting game key index
+  | Correct_answer is_correct -> update_correct game is_correct
   | _ -> ()
 ;;

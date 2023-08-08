@@ -73,17 +73,17 @@ let draw_sprites (game : Game.t) =
   let x_1, y_1 = game.player_one.curr_island.position in
   let x_2, y_2 = game.player_two.curr_island.position in
   Graphics.set_color Colors.purple;
-  Graphics.fill_rect (x_1 - 12) (y_1 + 25) 20 25;
+  Graphics.fill_rect (x_1 - 11) (y_1 + 25) 21 25;
   Graphics.set_color Colors.orange;
-  Graphics.fill_rect (x_2 - 12) (y_2 + 25) 20 25;
+  Graphics.fill_rect (x_2 - 11) (y_2 + 25) 21 25;
   Graphics.set_color Colors.tan;
-  Graphics.fill_circle (x_1 - 6) (y_1 + 60) 12;
-  Graphics.fill_circle (x_2 - 6) (y_2 + 60) 12;
+  Graphics.fill_circle (x_1 - 1) (y_1 + 62) 12;
+  Graphics.fill_circle (x_2 - 1) (y_2 + 62) 12;
   Graphics.set_color Colors.black;
-  Graphics.draw_rect (x_1 - 12) (y_1 + 25) 20 25;
-  Graphics.draw_rect (x_2 - 12) (y_2 + 25) 20 25;
-  Graphics.draw_circle (x_1 - 6) (y_1 + 60) 12;
-  Graphics.draw_circle (x_2 - 6) (y_2 + 60) 12
+  Graphics.draw_rect (x_1 - 11) (y_1 + 25) 21 25;
+  Graphics.draw_rect (x_2 - 11) (y_2 + 25) 21 25;
+  Graphics.draw_circle (x_1 - 1) (y_1 + 62) 12;
+  Graphics.draw_circle (x_2 - 1) (y_2 + 62) 12
 ;;
 
 let draw_islands (game : Game.t) =
@@ -194,6 +194,24 @@ let draw_question_and_answers (game : Game.t) =
       Graphics.draw_string (String.append answer_choice answer))
 ;;
 
+let draw_correct (letter : char) (answer : string) =
+  let open Constants in
+  let rect_width = 300 in
+  let rect_height = 200 in
+  Graphics.set_color Colors.head_color;
+  Graphics.fill_rect
+    ((play_area_width - rect_width) / 2)
+    ((play_area_height - rect_height) / 2)
+    rect_width
+    rect_height;
+  Graphics.set_color Colors.black;
+  Graphics.moveto ((play_area_width - 250) / 2) (play_area_height / 2);
+  Graphics.draw_string
+    [%string "Correct answer: %{Char.to_string letter}. %{answer}"];
+  Graphics.moveto ((play_area_width - 250) / 2) ((play_area_height / 2) - 20);
+  Graphics.draw_string "Press any key to continue"
+;;
+
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
 ;;
@@ -213,6 +231,21 @@ let handle_game_states_visually (game : Game.t) =
   | Answering _ | Buzzing ->
     draw_islands game;
     draw_question_and_answers game
+  | Correct_answer _ ->
+    let correct_answer = (List.hd_exn game.questions).correct_answer in
+    let index_corect =
+      match correct_answer with
+      | 'a' -> 0
+      | 'b' -> 1
+      | 'c' -> 2
+      | 'd' -> 3
+      | _ -> failwith ""
+    in
+    let correct_string =
+      List.nth_exn (List.hd_exn game.questions).answers index_corect
+    in
+    draw_islands game;
+    draw_correct correct_answer correct_string
   | Selecting _ ->
     draw_islands game;
     (match game.selected_island with

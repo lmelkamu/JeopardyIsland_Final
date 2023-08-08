@@ -18,6 +18,7 @@ module Game_state : sig
     | Answering of Player.t
     | Buzzing
     | Selecting of Player.t * int option
+    | Correct_answer of bool
   (* [@@deriving sexp_of, compare] *)
 
   val to_string : t -> string
