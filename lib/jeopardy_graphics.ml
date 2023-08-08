@@ -183,7 +183,7 @@ let handle_game_states_visually (game : Game.t) =
   let state = game.game_state in
   match state with
   | Start ->
-    Graphics.moveto ((play_area_width / 2) - 70) (play_area_height / 2);
+    Graphics.moveto ((play_area_width / 2) - 200) (play_area_height / 2);
     Graphics.draw_string
       " Welcome to Jeopardy Island. Press Spacebar to Start"
   | Game_over ->
@@ -227,13 +227,13 @@ let draw_board (game : Game.t) =
   let header_text = Game.Game_state.to_string game_state in
   Graphics.moveto
     ((play_area_width / 2) - (6 * String.length header_text))
-    (play_area_height + 20);
+    (play_area_height - 75);
   Graphics.set_color Colors.black;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width * 4 / 5) (play_area_height + 50);
+  Graphics.moveto (play_area_width - 150) (play_area_height - 50);
   Graphics.draw_string
     [%string "%{player_two.name} Score: %{player_two_score#Int}"];
-  Graphics.moveto 20 (play_area_height + 50);
+  Graphics.moveto 20 (play_area_height - 50);
   Graphics.draw_string
     [%string "%{player_one.name} Score: %{player_one_score#Int}"];
   Graphics.set_color Colors.head_color;

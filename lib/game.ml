@@ -2,6 +2,7 @@ open! Core
 open Async
 
 let pointer = ref (-1)
+let has_toggle = ref false
 
 module Level = struct
   module T = struct
@@ -119,18 +120,25 @@ let update_selecting (game : t) key =
        pointer := (!pointer + 1) % Set.length neighbors;
        game.selected_island
          <- Some (Set.nth neighbors !pointer |> Option.value_exn);
-       game.game_state <- Game_state.Selecting game.curr_player)
+       game.game_state <- Game_state.Selecting game.curr_player);
+    has_toggle := true
   | 'y' ->
-    Hashtbl.remove game.map game.curr_player.curr_island;
-    let map_copy = Hashtbl.copy game.map in
-    Hashtbl.iter_keys map_copy ~f:(fun island ->
-      Hashtbl.update game.map island ~f:(fun neighbors ->
-        Set.remove (Option.value_exn neighbors) game.curr_player.curr_island));
-    game.curr_player.curr_island <- Option.value_exn game.selected_island;
-    game.selected_island <- None;
-    pointer := -1;
-    game.questions <- List.tl_exn game.questions;
-    game.game_state <- Game_state.Buzzing
+    if !has_toggle
+    then (
+      Hashtbl.remove game.map game.curr_player.curr_island;
+      let map_copy = Hashtbl.copy game.map in
+      Hashtbl.iter_keys map_copy ~f:(fun island ->
+        Hashtbl.update game.map island ~f:(fun neighbors ->
+          Set.remove
+            (Option.value_exn neighbors)
+            game.curr_player.curr_island));
+      game.curr_player.curr_island <- Option.value_exn game.selected_island;
+      game.selected_island <- None;
+      pointer := -1;
+      game.questions <- List.tl_exn game.questions;
+      game.game_state <- Game_state.Buzzing;
+      has_toggle := false)
+    else ()
   | _ -> ()
 ;;
 
