@@ -17,7 +17,7 @@ module Game_state : sig
     | Game_over
     | Answering of Player.t
     | Buzzing
-    | Selecting of Player.t
+    | Selecting of Player.t * int option
   (* [@@deriving sexp_of, compare] *)
 
   val to_string : t -> string

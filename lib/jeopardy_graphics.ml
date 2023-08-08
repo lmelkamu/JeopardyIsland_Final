@@ -12,6 +12,7 @@ module Colors = struct
   let blue = Graphics.rgb 056 134 151
   let purple = Graphics.rgb 100 0 100
   let white = Graphics.rgb 225 225 225
+  let tan = Graphics.rgb 238 197 158
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
@@ -72,9 +73,17 @@ let draw_sprites (game : Game.t) =
   let x_1, y_1 = game.player_one.curr_island.position in
   let x_2, y_2 = game.player_two.curr_island.position in
   Graphics.set_color Colors.purple;
-  Graphics.draw_rect (x_1 - 10) (y_1 + 25) 25 25;
+  Graphics.fill_rect (x_1 - 12) (y_1 + 25) 20 25;
   Graphics.set_color Colors.orange;
-  Graphics.draw_rect (x_2 - 10) (y_2 + 25) 25 25
+  Graphics.fill_rect (x_2 - 12) (y_2 + 25) 20 25;
+  Graphics.set_color Colors.tan;
+  Graphics.fill_circle (x_1 - 6) (y_1 + 60) 12;
+  Graphics.fill_circle (x_2 - 6) (y_2 + 60) 12;
+  Graphics.set_color Colors.black;
+  Graphics.draw_rect (x_1 - 12) (y_1 + 25) 20 25;
+  Graphics.draw_rect (x_2 - 12) (y_2 + 25) 20 25;
+  Graphics.draw_circle x_1 (y_1 + 60) 12;
+  Graphics.draw_circle x_2 (y_2 + 60) 12
 ;;
 
 let draw_islands (game : Game.t) =

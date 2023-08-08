@@ -1,9 +1,6 @@
 open! Core
 open Async
 
-let pointer = ref (-1)
-let has_toggle = ref false
-
 module Level = struct
   module T = struct
     type t =
@@ -27,7 +24,7 @@ module Game_state = struct
     | Game_over
     | Answering of Player.t
     | Buzzing
-    | Selecting of Player.t
+    | Selecting of Player.t * int option
   [@@deriving sexp]
 
   let to_string t =
@@ -36,7 +33,7 @@ module Game_state = struct
     | Game_over -> "Game over"
     | Answering player -> String.append player.name " is answering"
     | Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
-    | Selecting player ->
+    | Selecting (player, _) ->
       String.append
         player.name
         " is selecting the next island - press 't' to toggle and 'y' to \
@@ -100,45 +97,47 @@ let update_answer (game : t) key =
   | 'a' | 'b' | 'c' | 'd' ->
     if Question.is_correct (List.hd_exn game.questions) key
     then (
-      game.game_state <- Game_state.Selecting game.curr_player;
+      game.game_state <- Game_state.Selecting (game.curr_player, None);
       game.curr_player.points <- game.curr_player.points + 3)
     else (
       game.curr_player.points <- game.curr_player.points - 3;
       game.curr_player <- swap_player game.curr_player game;
-      game.game_state <- Game_state.Selecting game.curr_player)
+      game.game_state <- Game_state.Selecting (game.curr_player, None))
   | _ -> ()
 ;;
 
 (* at this point, we need to remove all copies of current island from
    hashtbl *)
-let update_selecting (game : t) key =
+let update_selecting (game : t) key index =
   match key with
   | 't' ->
     (match Hashtbl.find game.map game.curr_player.curr_island with
      | None -> game.game_state <- Game_state.Game_over
      | Some neighbors ->
-       pointer := (!pointer + 1) % Set.length neighbors;
+       let selected =
+         match index with
+         | None -> 0
+         | Some index -> (index + 1) % Set.length neighbors
+       in
        game.selected_island
-         <- Some (Set.nth neighbors !pointer |> Option.value_exn);
-       game.game_state <- Game_state.Selecting game.curr_player);
-    has_toggle := true
+         <- Some (Set.nth neighbors selected |> Option.value_exn);
+       game.game_state
+         <- Game_state.Selecting (game.curr_player, Some selected))
   | 'y' ->
-    if !has_toggle
-    then (
-      Hashtbl.remove game.map game.curr_player.curr_island;
-      let map_copy = Hashtbl.copy game.map in
-      Hashtbl.iter_keys map_copy ~f:(fun island ->
-        Hashtbl.update game.map island ~f:(fun neighbors ->
-          Set.remove
-            (Option.value_exn neighbors)
-            game.curr_player.curr_island));
-      game.curr_player.curr_island <- Option.value_exn game.selected_island;
-      game.selected_island <- None;
-      pointer := -1;
-      game.questions <- List.tl_exn game.questions;
-      game.game_state <- Game_state.Buzzing;
-      has_toggle := false)
-    else ()
+    (match index with
+     | None -> ()
+     | Some _ ->
+       Hashtbl.remove game.map game.curr_player.curr_island;
+       let map_copy = Hashtbl.copy game.map in
+       Hashtbl.iter_keys map_copy ~f:(fun island ->
+         Hashtbl.update game.map island ~f:(fun neighbors ->
+           Set.remove
+             (Option.value_exn neighbors)
+             game.curr_player.curr_island));
+       game.curr_player.curr_island <- Option.value_exn game.selected_island;
+       game.selected_island <- None;
+       game.questions <- List.tl_exn game.questions;
+       game.game_state <- Game_state.Buzzing)
   | _ -> ()
 ;;
 
@@ -349,6 +348,6 @@ let handle_key (game : t) key =
   | Start -> update_start game key
   | Answering _ -> update_answer game key
   | Buzzing -> update_buzzing game key
-  | Selecting _ -> update_selecting game key
+  | Selecting (_, index) -> update_selecting game key index
   | _ -> ()
 ;;
