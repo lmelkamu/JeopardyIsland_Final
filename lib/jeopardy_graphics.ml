@@ -68,6 +68,15 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
+let _draw_sprites (game : Game.t) =
+  let x_1, y_1 = game.player_one.curr_island.position in
+  let x_2, y_2 = game.player_two.curr_island.position in
+  Graphics.set_color Colors.purple;
+  Graphics.draw_rect x_1 (y_1 + 10) 10 10;
+  Graphics.set_color Colors.orange;
+  Graphics.draw_rect x_2 (y_2 + 10) 10 10
+;;
+
 let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island_1 ->
@@ -86,7 +95,11 @@ let draw_islands (game : Game.t) =
   draw_circle p_1_x p_1_y ~color:Colors.purple;
   let player_two_island = game.player_two.curr_island in
   let p_2_x, p_2_y = player_two_island.position in
-  draw_circle p_2_x p_2_y ~color:Colors.orange
+  draw_circle p_2_x p_2_y ~color:Colors.orange;
+  Graphics.set_color Colors.purple;
+  Graphics.draw_rect p_1_x (p_1_y + 10) 10 10;
+  Graphics.set_color Colors.orange;
+  Graphics.draw_rect p_2_x (p_2_y + 10) 10 10
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
@@ -112,6 +125,7 @@ let draw_islands (game : Game.t) =
 
 (* take the string, split based on the character number, and then return the
    split list*)
+
 let split_string (words : string) (number_of_chars : int) : string list =
   let word_split = String.split words ~on:' ' in
   let _, last_section, rev_words_list =
