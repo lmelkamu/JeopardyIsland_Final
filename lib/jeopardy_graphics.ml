@@ -207,6 +207,7 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.draw_string
       " Welcome to Jeopardy Island. Press Spacebar to Start"
   | Game_over ->
+    Graphics.draw_rect 0 0 play_area_width play_area_height;
     Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
     Graphics.draw_string " Game Over"
   | Answering _ | Buzzing ->
@@ -221,12 +222,17 @@ let handle_game_states_visually (game : Game.t) =
        draw_circle x y ~color:Colors.gold)
 ;;
 
+(* used to move the player two score over to the right so it remains aligned
+   with the right edge of the screen*)
+let rec num_length num = if abs num < 10 then 1 else 1 + num_length (num / 10)
+
 let draw_board (game : Game.t) =
   let open Constants in
   let player_one = game.player_one in
   let player_two = game.player_two in
   let player_one_score = player_one.points in
   let player_two_score = player_two.points in
+  let player_two_score_length = num_length player_two_score in
   let game_state = game.game_state in
   Graphics.set_color Colors.black;
   (* Graphics.set_font
@@ -245,12 +251,15 @@ let draw_board (game : Game.t) =
     play_area_width
     header_height;
   let header_text = Game.Game_state.to_string game_state in
+  let header_text_length = String.length header_text in
   Graphics.moveto
-    ((play_area_width / 2) - (6 * String.length header_text))
-    (play_area_height - 75);
-  Graphics.set_color Colors.black;
+    ((play_area_width / 2) - (5 * header_text_length))
+    (play_area_height + 20);
+  Graphics.set_color Colors.red;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
-  Graphics.moveto (play_area_width - 150) (play_area_height - 50);
+  Graphics.moveto
+    (play_area_width - 130 - (5 * player_two_score_length))
+    (play_area_height - 50);
   Graphics.draw_string
     [%string "%{player_two.name} Score: %{player_two_score#Int}"];
   Graphics.moveto 20 (play_area_height - 50);
