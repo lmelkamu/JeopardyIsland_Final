@@ -82,8 +82,8 @@ let draw_sprites (game : Game.t) =
   Graphics.set_color Colors.black;
   Graphics.draw_rect (x_1 - 12) (y_1 + 25) 20 25;
   Graphics.draw_rect (x_2 - 12) (y_2 + 25) 20 25;
-  Graphics.draw_circle x_1 (y_1 + 60) 12;
-  Graphics.draw_circle x_2 (y_2 + 60) 12
+  Graphics.draw_circle (x_1 - 6) (y_1 + 60) 12;
+  Graphics.draw_circle (x_2 - 6) (y_2 + 60) 12
 ;;
 
 let draw_islands (game : Game.t) =
