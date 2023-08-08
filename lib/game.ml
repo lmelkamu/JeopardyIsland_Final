@@ -64,6 +64,7 @@ type t =
   ; map : (Island.t, Island.Set.t) Hashtbl.t
   ; mutable questions : Question.Question.t list
   ; mutable selected_island : Island.t option
+  ; mutable visisted_islands : Island.t list
   }
 
 let swap_player (player : Player.t) (game : t) =
@@ -134,6 +135,14 @@ let update_selecting (game : t) key index =
            Set.remove
              (Option.value_exn neighbors)
              game.curr_player.curr_island));
+       let team = String.equal game.curr_player.name game.player_one.name in
+       game.visisted_islands
+         <- Island.create
+              ~name:game.curr_player.name
+              ~position:game.curr_player.curr_island.position
+              ~team
+              ()
+            :: game.visisted_islands;
        game.curr_player.curr_island <- Option.value_exn game.selected_island;
        game.selected_island <- None;
        game.questions <- List.tl_exn game.questions;
@@ -291,14 +300,17 @@ let create_islands difficulty =
       let planet = List.nth_exn solar_system idx in
       G.add_vertex graph planet;
       let x, y = List.nth_exn positions idx in
-      Island.create ~name:planet ~position:(x, y))
+      Island.create ~name:planet ~position:(x, y) ())
   in
   let leftmost, rightmost =
     List.fold
       islands
       ~init:
-        ( Island.create ~name:"small" ~position:(Int.max_value, Int.max_value)
-        , Island.create ~name:"big" ~position:(0, 0) )
+        ( Island.create
+            ~name:"small"
+            ~position:(Int.max_value, Int.max_value)
+            ()
+        , Island.create ~name:"big" ~position:(0, 0) () )
       ~f:(fun (small, big) island ->
         let min_x, _ = small.position in
         let max_x, _ = big.position in
@@ -337,6 +349,7 @@ let create
     ; map = Island.Table.create ()
     ; questions
     ; selected_island = None
+    ; visisted_islands = []
     }
   in
   create_graph ~graph ~distance:150.0 ~game;

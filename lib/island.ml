@@ -6,14 +6,15 @@ module T = struct
   type t =
     { name : string
     ; position : int * int
+    ; team : bool option
     }
   [@@deriving sexp, compare, hash, equal]
 end
 
-let create ~(name : string) ~(position : int * int) : T.t =
-  { name; position }
-;;
-
 include T
 include Hashable.Make (T)
 include Comparable.Make (T)
+
+let create ~(name : string) ~(position : int * int) ?team () : t =
+  { name; position; team }
+;;
