@@ -159,7 +159,7 @@ let create_graph ~graph ~(distance : float) ~(game : t) =
   let island_count = List.length distinct_islands in
   if island_count > 1
   then
-    List.range 0 (island_count - 2)
+    List.range 0 (island_count - 1)
     |> List.iter ~f:(fun (island_number : int) ->
       let island_1_name =
         List.random_element_exn (List.nth_exn distinct_islands island_number)
@@ -191,10 +191,10 @@ let create_graph ~graph ~(distance : float) ~(game : t) =
 (*Initialized the islands and outputs a graph*)
 let create_islands difficulty =
   let x_scale = 10 in
-  let y_scale = 8 in
+  let y_scale = 9 in
   let graph = G.create () in
   let bound = 100 in
-  let right_left_margin = 3 in
+  let right_left_margin = 5 in
   let up_down_margin = 15 in
   let size =
     match difficulty with

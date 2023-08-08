@@ -28,18 +28,27 @@ module Question = struct
     }
   [@@deriving jsonaf, sexp, compare, hash] [@@jsonaf.allow_extra_fields]
 
+  let unescape_html text =
+    let soup = Soup.parse text in
+    Soup.texts soup |> String.concat ~sep:" "
+  ;;
+
   let of_for_parsing_question (question : For_parsing.Question.t) : t =
     let answers =
       List.permute (question.incorrect_answers @ [ question.correct_answer ])
+      |> List.map ~f:unescape_html
     in
     let index, _ =
       List.findi_exn answers ~f:(fun _idx answer ->
-        String.equal answer question.correct_answer)
+        String.equal answer (unescape_html question.correct_answer))
     in
     let correct_char =
       match index with 0 -> 'a' | 1 -> 'b' | 2 -> 'c' | 3 -> 'd' | _ -> ' '
     in
-    { question = question.question; answers; correct_answer = correct_char }
+    { question = unescape_html question.question
+    ; answers
+    ; correct_answer = correct_char
+    }
   ;;
 end
 
