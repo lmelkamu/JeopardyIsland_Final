@@ -254,8 +254,8 @@ let draw_board (game : Game.t) =
   let header_text_length = String.length header_text in
   Graphics.moveto
     ((play_area_width / 2) - (5 * header_text_length))
-    (play_area_height + 20);
-  Graphics.set_color Colors.red;
+    (play_area_height - 75);
+  Graphics.set_color Colors.black;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto
     (play_area_width - 130 - (5 * player_two_score_length))
