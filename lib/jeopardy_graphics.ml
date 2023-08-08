@@ -70,13 +70,13 @@ let draw_play_area () =
   Graphics.fill_rect 0 0 play_area_width play_area_height
 ;;
 
-let _draw_sprites (game : Game.t) =
+let draw_sprites (game : Game.t) =
   let x_1, y_1 = game.player_one.curr_island.position in
   let x_2, y_2 = game.player_two.curr_island.position in
   Graphics.set_color Colors.purple;
-  Graphics.draw_rect x_1 (y_1 + 10) 10 10;
+  Graphics.draw_rect (x_1 - 10) (y_1 + 25) 25 25;
   Graphics.set_color Colors.orange;
-  Graphics.draw_rect x_2 (y_2 + 10) 10 10
+  Graphics.draw_rect (x_2 - 10) (y_2 + 25) 25 25
 ;;
 
 let draw_islands (game : Game.t) =
@@ -96,10 +96,7 @@ let draw_islands (game : Game.t) =
   let player_two_island = game.player_two.curr_island in
   let p_2_x, p_2_y = player_two_island.position in
   draw_circle p_2_x p_2_y ~color:Colors.orange;
-  Graphics.set_color Colors.purple;
-  Graphics.draw_rect p_1_x (p_1_y + 10) 10 10;
-  Graphics.set_color Colors.orange;
-  Graphics.draw_rect p_2_x (p_2_y + 10) 10 10
+  draw_sprites game
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
