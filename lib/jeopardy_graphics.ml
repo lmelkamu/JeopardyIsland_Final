@@ -18,7 +18,6 @@ module Colors = struct
   let orange = Graphics.rgb 255 177 64
   let gray = Graphics.rgb 165 151 151
   let lime = Graphics.rgb 199 239 0
-
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
@@ -49,7 +48,6 @@ end
    Graphics.draw_string (Printf.sprintf " %s" header_text); Graphics.moveto
    (play_area_width - 75) (play_area_height + 25); Graphics.draw_string
    (Printf.sprintf "Score: %d" score) ;; *)
-
 let only_one : bool ref = ref false
 
 let init_exn level_num player_one player_two =
@@ -150,28 +148,22 @@ let draw_visited (game : Game.t) =
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
    draw_block apple_position ~color:(Colors.apple_color apple) ;; *)
-
 (* let draw_snake snake_head snake_tail = List.iter snake_tail ~f:(draw_block
    ~color:Colors.green); (* Snake head is a different color *) draw_block
    ~color:Colors.head_color snake_head ;; *)
-
 (* let render game = (* We want double-buffering. See
    https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for more
-   info!
-
-   So, we set [display_mode] to false, draw to the background buffer, set
-   [display_mode] to true and then synchronize. This guarantees that there
-   won't be flickering! *) Graphics.display_mode false; let snake =
+   info! So, we set [display_mode] to false, draw to the background buffer,
+   set [display_mode] to true and then synchronize. This guarantees that
+   there won't be flickering! *) Graphics.display_mode false; let snake =
    Game.snake game in let snake_two = Game.snake_two game in let apple =
    Game.apple game in let game_state = Game.game_state game in let score =
    Game.score game in draw_header ~game_state score; draw_play_area ();
    draw_apple apple; draw_snake (Snake.head snake) (Snake.tail snake);
    draw_snake (Snake.head snake_two) (Snake.tail snake_two);
    Graphics.display_mode true; Graphics.synchronize () ;; *)
-
 (* take the string, split based on the character number, and then return the
    split list*)
-
 let split_string (words : string) (number_of_chars : int) : string list =
   let word_split = String.split words ~on:' ' in
   let _, last_section, rev_words_list =
@@ -207,7 +199,7 @@ let draw_question_and_answers (game : Game.t) =
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
   let rect_width = 300 in
   let rect_height = 200 in
-  let question = (Option.value_exn game.selected_island).question in
+  let question = game.current_question in
   let question_string = question.question in
   (* let word_split = String.split words ~on:' ' in List.split_n word_split
      number_of_words in *)
@@ -244,7 +236,7 @@ let draw_correct (letter : char) (answer : string) =
     rect_width
     rect_height;
   Graphics.set_color Colors.black;
-  Graphics.moveto ((play_area_width - 100) / 2) ((play_area_height / 2) + 50);
+  Graphics.moveto ((play_area_width / 2) - 100) ((play_area_height / 2) + 50);
   Graphics.draw_string "Correct answer:";
   let text =
     split_string [%string "%{Char.to_string letter}. %{answer}"] 20
@@ -314,9 +306,7 @@ let handle_game_states_visually (game : Game.t) =
     draw_visited game;
     draw_question_and_answers game
   | Correct_answer _ ->
-    let correct_answer =
-      game.curr_player.curr_island.question.correct_answer
-    in
+    let correct_answer = game.current_question.correct_answer in
     let index_corect =
       match correct_answer with
       | 'a' -> 0
@@ -326,7 +316,7 @@ let handle_game_states_visually (game : Game.t) =
       | _ -> failwith ""
     in
     let correct_string =
-      List.nth_exn game.curr_player.curr_island.question.answers index_corect
+      List.nth_exn game.current_question.answers index_corect
     in
     draw_islands game;
     draw_visited game;

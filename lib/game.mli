@@ -33,6 +33,7 @@ type t =
   ; map : (Island.t, Island.Set.t) Hashtbl.t
   ; mutable selected_island : Island.t option
   ; mutable visisted_islands : Island.t list
+  ; mutable current_question : Question.Question.t
   }
 
 (* val game_command : Command.t *)

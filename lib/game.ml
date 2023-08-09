@@ -8,12 +8,10 @@ module Level = struct
       | Medium
       | Hard
     [@@deriving enumerate, sexp]
-
     (* let to_string t = Sexp.to_string (sexp_of_t t) *)
   end
 
   include T
-
   (* let arg : t Command.Arg_type.t = Command.Arg_type.enumerated (module
      T) *)
 end
@@ -69,6 +67,7 @@ type t =
   ; map : (Island.t, Island.Set.t) Hashtbl.t
   ; mutable selected_island : Island.t option
   ; mutable visisted_islands : Island.t list
+  ; mutable current_question : Question.Question.t
   }
 
 let swap_player (player : Player.t) (game : t) =
@@ -108,8 +107,7 @@ let update_answer (game : t) key =
   | 'a' | 'b' | 'c' | 'd' ->
     game.game_state
       <- Game_state.Correct_answer
-           (Question.is_correct game.curr_player.curr_island.question key);
-    game.selected_island <- None
+           (Question.is_correct game.current_question key)
   | _ -> ()
 ;;
 
@@ -140,7 +138,8 @@ let update_selecting (game : t) key index =
        game.selected_island
          <- Some (Set.nth neighbors selected |> Option.value_exn);
        game.game_state
-         <- Game_state.Selecting (game.curr_player, Some selected))
+         <- Game_state.Selecting (game.curr_player, Some selected));
+    game.current_question <- (Option.value_exn game.selected_island).question
   | 'y' ->
     (match index with
      | None -> ()
@@ -161,6 +160,8 @@ let update_selecting (game : t) key index =
               ~question:game.curr_player.curr_island.question
               ()
             :: game.visisted_islands;
+       game.curr_player.curr_island <- Option.value_exn game.selected_island;
+       game.selected_island <- None;
        game.game_state <- Game_state.Buzzing)
   | _ -> ()
 ;;
@@ -372,6 +373,7 @@ let create
     ; map = Island.Table.create ()
     ; selected_island = None
     ; visisted_islands = []
+    ; current_question = player_one.curr_island.question
     }
   in
   create_graph ~graph ~distance:150.0 ~game;
