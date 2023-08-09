@@ -101,15 +101,21 @@ let draw_islands (game : Game.t) =
   let (map : (Island.t, Island.Set.t) Hashtbl.t) = game.map in
   Hashtbl.iter_keys map ~f:(fun island_1 ->
     let x, y = island_1.position in
-    Graphics.set_color Colors.white;
     Set.iter (Hashtbl.find_exn map island_1) ~f:(fun island_2 ->
       let x_2, y_2 = island_2.position in
+      Graphics.set_color Colors.black;
       Graphics.moveto x y;
-      Graphics.set_line_width 3;
-      Graphics.lineto x_2 y_2));
+      Graphics.set_line_width 5;
+      Graphics.lineto x_2 y_2;
+      Graphics.set_color Colors.white;
+      Graphics.set_line_width 2;
+      Graphics.lineto x y));
+  Graphics.set_line_width 2;
   Hashtbl.iter_keys map ~f:(fun island_1 ->
     let x, y = island_1.position in
-    draw_circle x y ~color:Colors.green);
+    draw_circle x y ~color:Colors.green;
+    Graphics.set_color Colors.black;
+    Graphics.draw_circle x y 25);
   let player_one_island = game.player_one.curr_island in
   let p_1_x, p_1_y = player_one_island.position in
   draw_circle p_1_x p_1_y ~color:!player_one_color;
@@ -122,11 +128,14 @@ let draw_islands (game : Game.t) =
   else (
     let selected = Option.value_exn game.selected_island in
     let category = selected.question.category in
+    let difficulty = selected.question.difficulty in
     let x, y = selected.position in
     Graphics.set_font "-adobe-courier-bold-r-normal--10-0-0-0-m-0-iso8859-1";
     Graphics.moveto (x - (3 * String.length category)) (y - 35);
     Graphics.set_color Colors.black;
-    Graphics.draw_string category)
+    Graphics.draw_string category;
+    Graphics.moveto (x - (3 * String.length difficulty)) (y - 50);
+    Graphics.draw_string difficulty)
 ;;
 
 let draw_visited (game : Game.t) =
@@ -138,32 +147,19 @@ let draw_visited (game : Game.t) =
     List.filter game.visisted_islands ~f:(fun island ->
       not (Option.value_exn island.team))
   in
+  Graphics.set_line_width 2;
   List.iter player_one_islands ~f:(fun island ->
     let x, y = island.position in
-    draw_circle x y ~color:!player_one_color);
+    draw_circle x y ~color:!player_one_color;
+    Graphics.set_color Colors.black;
+    Graphics.draw_circle x y 25);
   List.iter player_two_islands ~f:(fun island ->
     let x, y = island.position in
-    draw_circle x y ~color:!player_two_color)
+    draw_circle x y ~color:!player_two_color;
+    Graphics.set_color Colors.black;
+    Graphics.draw_circle x y 25)
 ;;
 
-(* let draw_apple apple = let apple_position = Apple.position apple in
-   draw_block apple_position ~color:(Colors.apple_color apple) ;; *)
-(* let draw_snake snake_head snake_tail = List.iter snake_tail ~f:(draw_block
-   ~color:Colors.green); (* Snake head is a different color *) draw_block
-   ~color:Colors.head_color snake_head ;; *)
-(* let render game = (* We want double-buffering. See
-   https://caml.inria.fr/pub/docs/manual-ocaml/libref/Graphics.html for more
-   info! So, we set [display_mode] to false, draw to the background buffer,
-   set [display_mode] to true and then synchronize. This guarantees that
-   there won't be flickering! *) Graphics.display_mode false; let snake =
-   Game.snake game in let snake_two = Game.snake_two game in let apple =
-   Game.apple game in let game_state = Game.game_state game in let score =
-   Game.score game in draw_header ~game_state score; draw_play_area ();
-   draw_apple apple; draw_snake (Snake.head snake) (Snake.tail snake);
-   draw_snake (Snake.head snake_two) (Snake.tail snake_two);
-   Graphics.display_mode true; Graphics.synchronize () ;; *)
-(* take the string, split based on the character number, and then return the
-   split list*)
 let split_string (words : string) (number_of_chars : int) : string list =
   let word_split = String.split words ~on:' ' in
   let _, last_section, rev_words_list =

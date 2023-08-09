@@ -112,12 +112,19 @@ let update_answer (game : t) key =
 ;;
 
 let update_correct (game : t) (is_correct : bool) =
+  let points =
+    match game.current_question.difficulty with
+    | "easy" -> 1
+    | "medium" -> 3
+    | "hard" -> 5
+    | _ -> failwith "unbounded difficulty"
+  in
   if is_correct
   then (
     game.game_state <- Game_state.Selecting (game.curr_player, None);
-    game.curr_player.points <- game.curr_player.points + 3)
+    game.curr_player.points <- game.curr_player.points + points)
   else (
-    game.curr_player.points <- game.curr_player.points - 3;
+    game.curr_player.points <- game.curr_player.points - points;
     game.curr_player <- swap_player game.curr_player game;
     game.game_state <- Game_state.Selecting (game.curr_player, None))
 ;;

@@ -11,6 +11,7 @@ module For_parsing = struct
       ; correct_answer : string
       ; incorrect_answers : string list
       ; category : string
+      ; difficulty : string
       }
     [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
   end
@@ -27,6 +28,7 @@ module Question = struct
     ; answers : string list
     ; correct_answer : char
     ; category : string
+    ; difficulty : string
     }
   [@@deriving jsonaf, sexp, compare, hash, equal]
   [@@jsonaf.allow_extra_fields]
@@ -52,6 +54,7 @@ module Question = struct
     ; answers
     ; correct_answer = correct_char
     ; category = unescape_html question.category
+    ; difficulty = unescape_html question.difficulty
     }
   ;;
 end

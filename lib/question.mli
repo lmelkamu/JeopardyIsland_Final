@@ -11,6 +11,7 @@ module Question : sig
     ; answers : string list
     ; correct_answer : char
     ; category : string
+    ; difficulty : string
     }
   [@@deriving jsonaf, sexp, compare, hash, equal]
   [@@jsonaf.allow_extra_fields]
