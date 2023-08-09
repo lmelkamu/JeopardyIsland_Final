@@ -221,8 +221,10 @@ let draw_question_and_answers (game : Game.t) =
     (question.answers : string list)
     ~f:(fun idx answer ->
       let answer_choice = List.nth_exn choices idx in
-      Graphics.moveto (20 + (play_area_width * idx / 4)) 50;
-      Graphics.draw_string (String.append answer_choice answer))
+      let text = split_string (String.append answer_choice answer) 15 in
+      List.iteri text ~f:(fun index line ->
+        Graphics.moveto (20 + (play_area_width * idx / 4)) (50 - (20 * index));
+        Graphics.draw_string line))
 ;;
 
 let draw_correct (letter : char) (answer : string) =
@@ -236,14 +238,14 @@ let draw_correct (letter : char) (answer : string) =
     rect_width
     rect_height;
   Graphics.set_color Colors.black;
-  Graphics.moveto ((play_area_width / 2) - 100) ((play_area_height / 2) + 50);
+  Graphics.moveto ((play_area_width / 2) - 60) ((play_area_height / 2) + 50);
   Graphics.draw_string "Correct answer:";
   let text =
     split_string [%string "%{Char.to_string letter}. %{answer}"] 20
   in
   List.iteri text ~f:(fun index line ->
     Graphics.moveto
-      ((play_area_width - 100) / 2)
+      ((play_area_width / 2) - (String.length line * 5))
       ((play_area_height / 2) - (20 * index));
     Graphics.draw_string line)
 ;;
