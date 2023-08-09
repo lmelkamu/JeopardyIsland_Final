@@ -82,12 +82,6 @@ let update_start game key player_one_index player_two_index =
   | ' ' -> game.game_state <- Game_state.Buzzing
   (* need to add delay before buzzing is allowed, but we still need to
      visualize the difference *)
-  | 'a' ->
-    let new_index = (player_one_index + 1) % 5 in
-    game.game_state <- Game_state.Start (new_index, player_two_index)
-  | 'l' ->
-    let new_index = (player_two_index + 1) % 5 in
-    game.game_state <- Game_state.Start (player_one_index, new_index)
   | _ -> ()
 ;;
 
@@ -108,7 +102,8 @@ let update_answer (game : t) key =
   | 'a' | 'b' | 'c' | 'd' ->
     game.game_state
       <- Game_state.Correct_answer
-           (Question.is_correct game.curr_player.curr_island.question key)
+           (Question.is_correct game.curr_player.curr_island.question key);
+    game.selected_island <- None
   | _ -> ()
 ;;
 
@@ -160,8 +155,6 @@ let update_selecting (game : t) key index =
               ~question:game.curr_player.curr_island.question
               ()
             :: game.visisted_islands;
-       game.curr_player.curr_island <- Option.value_exn game.selected_island;
-       game.selected_island <- None;
        game.game_state <- Game_state.Buzzing)
   | _ -> ()
 ;;

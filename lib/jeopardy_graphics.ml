@@ -207,7 +207,7 @@ let draw_question_and_answers (game : Game.t) =
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
   let rect_width = 300 in
   let rect_height = 200 in
-  let question = game.curr_player.curr_island.question in
+  let question = (Option.value_exn game.selected_island).question in
   let question_string = question.question in
   (* let word_split = String.split words ~on:' ' in List.split_n word_split
      number_of_words in *)
