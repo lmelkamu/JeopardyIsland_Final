@@ -40,7 +40,9 @@ module Game_state = struct
         " is selecting the next island - press 't' to toggle and 'y' to \
          select"
     | Correct_answer is_correct ->
-      if is_correct then "Correct" else "Incorrect"
+      String.append
+        (if is_correct then "Correct!" else "Incorrect!")
+        " Press any key to continue"
   ;;
 end
 

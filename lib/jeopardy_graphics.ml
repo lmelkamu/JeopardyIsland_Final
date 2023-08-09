@@ -222,8 +222,8 @@ let draw_question_and_answers (game : Game.t) =
   Graphics.set_color Colors.black;
   List.iteri word_separations ~f:(fun line_number line ->
     Graphics.moveto
-      ((play_area_width / 2) - (6 * String.length line))
-      ((play_area_height / 2) - (20 * line_number));
+      ((play_area_width / 2) - (5 * String.length line))
+      ((play_area_height / 2) + 30 - (20 * line_number));
     Graphics.draw_string line);
   List.iteri
     (question.answers : string list)
@@ -244,11 +244,16 @@ let draw_correct (letter : char) (answer : string) =
     rect_width
     rect_height;
   Graphics.set_color Colors.black;
-  Graphics.moveto ((play_area_width - 250) / 2) (play_area_height / 2);
-  Graphics.draw_string
-    [%string "Correct answer: %{Char.to_string letter}. %{answer}"];
-  Graphics.moveto ((play_area_width - 250) / 2) ((play_area_height / 2) - 20);
-  Graphics.draw_string "Press any key to continue"
+  Graphics.moveto ((play_area_width - 100) / 2) ((play_area_height / 2) + 50);
+  Graphics.draw_string "Correct answer:";
+  let text =
+    split_string [%string "%{Char.to_string letter}. %{answer}"] 20
+  in
+  List.iteri text ~f:(fun index line ->
+    Graphics.moveto
+      ((play_area_width - 100) / 2)
+      ((play_area_height / 2) - (20 * index));
+    Graphics.draw_string line)
 ;;
 
 let read_key () =
@@ -262,11 +267,17 @@ let handle_game_states_visually (game : Game.t) =
   | Start (player_one_index, player_two_index) ->
     player_one_color := List.nth_exn colors player_one_index;
     player_two_color := List.nth_exn colors player_two_index;
-    Graphics.moveto ((play_area_width / 2) - 230) (play_area_height / 2);
-    Graphics.draw_string
-      " Welcome to Jeopardy Island. Players can choose their colors by \
-       pressing 'a' and 'l'. \n\
-      \      Press spacebar to start!!";
+    let text =
+      split_string
+        " Welcome to Jeopardy Island. Players can choose their colors by \
+         pressing 'a' and 'l'. Press spacebar to start!!"
+        50
+    in
+    List.iteri text ~f:(fun index line ->
+      Graphics.moveto
+        ((play_area_width / 2) - 250)
+        ((play_area_height / 2) - (20 * index));
+      Graphics.draw_string line);
     (* mounds *)
     Graphics.fill_arc 150 header_height 50 30 0 180;
     Graphics.fill_arc (play_area_width - 150) header_height 50 30 0 180;
@@ -285,8 +296,12 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.set_color !player_two_color;
     Graphics.fill_rect (play_area_width - 165) (header_height + 110) 35 40;
     Graphics.fill_rect (play_area_width - 175) (header_height + 150) 55 20;
-    (* head *)
+    (* head + arms *)
     Graphics.set_color Colors.tan;
+    Graphics.fill_rect 125 (header_height + 110) 10 40;
+    Graphics.fill_rect 170 (header_height + 110) 10 40;
+    Graphics.fill_rect (play_area_width - 175) (header_height + 110) 10 40;
+    Graphics.fill_rect (play_area_width - 130) (header_height + 110) 10 40;
     Graphics.fill_circle 152 (header_height + 190) 20;
     Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20
   | Game_over ->
