@@ -223,7 +223,7 @@ let draw_question_and_answers (game : Game.t) =
       let answer_choice = List.nth_exn choices idx in
       let text = split_string (String.append answer_choice answer) 15 in
       List.iteri text ~f:(fun index line ->
-        Graphics.moveto (20 + (play_area_width * idx / 4)) (50 - (20 * index));
+        Graphics.moveto (20 + (play_area_width * idx / 4)) (75 - (20 * index));
         Graphics.draw_string line))
 ;;
 
@@ -364,7 +364,7 @@ let draw_board (game : Game.t) =
   let header_text = Game.Game_state.to_string game_state in
   let header_text_length = String.length header_text in
   Graphics.moveto
-    ((play_area_width / 2) - (5 * header_text_length))
+    ((play_area_width / 2) - (6 * header_text_length))
     (play_area_height - 75);
   Graphics.set_color Colors.black;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
