@@ -20,7 +20,7 @@ end
 
 module Game_state = struct
   type t =
-    | Start
+    | Start of int * int
     | Game_over
     | Answering of Player.t
     | Buzzing
@@ -30,7 +30,7 @@ module Game_state = struct
 
   let to_string t =
     match t with
-    | Start -> "Jeopardy Island!!"
+    | Start _ -> "Jeopardy Island!!"
     | Game_over -> ""
     | Answering player -> String.append player.name " is answering"
     | Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
@@ -75,11 +75,17 @@ let swap_player (player : Player.t) (game : t) =
   else game.player_one
 ;;
 
-let update_start game key =
+let update_start game key player_one_index player_two_index =
   match key with
   | ' ' -> game.game_state <- Game_state.Buzzing
   (* need to add delay before buzzing is allowed, but we still need to
      visualize the difference *)
+  | 'a' ->
+    let new_index = (player_one_index + 1) % 5 in
+    game.game_state <- Game_state.Start (new_index, player_two_index)
+  | 'l' ->
+    let new_index = (player_two_index + 1) % 5 in
+    game.game_state <- Game_state.Start (player_one_index, new_index)
   | _ -> ()
 ;;
 
@@ -360,7 +366,7 @@ let create
     { player_one
     ; player_two
     ; curr_player = player_one
-    ; game_state = Game_state.Start
+    ; game_state = Game_state.Start (0, 0)
     ; islands
     ; map = Island.Table.create ()
     ; selected_island = None
@@ -373,7 +379,7 @@ let create
 
 let handle_key (game : t) key =
   match game.game_state with
-  | Start -> update_start game key
+  | Start (p1, p2) -> update_start game key p1 p2
   | Answering _ -> update_answer game key
   | Buzzing -> update_buzzing game key
   | Selecting (_, index) -> update_selecting game key index

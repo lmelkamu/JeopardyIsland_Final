@@ -5,17 +5,26 @@ open! Graphics
 module Colors = struct
   let black = Graphics.rgb 000 000 000
   let green = Graphics.rgb 137 177 096
-  let orange = Graphics.rgb 229 143 101
   let head_color = Graphics.rgb 204 176 136
-  let _red = Graphics.rgb 255 000 000
   let gold = Graphics.rgb 255 223 0
   let blue = Graphics.rgb 056 134 151
-  let purple = Graphics.rgb 100 0 100
   let white = Graphics.rgb 225 225 225
   let tan = Graphics.rgb 238 197 158
+
+  (* clothing colors *)
+  let jeans = Graphics.rgb 35 94 158
+  let red = Graphics.rgb 237 37 78
+  let purple = Graphics.rgb 94 35 157
+  let orange = Graphics.rgb 255 177 64
+  let gray = Graphics.rgb 165 151 151
+  let lime = Graphics.rgb 199 239 0
+
   (* let game_in_progress = Graphics.rgb 100 100 200 let game_lost =
      Graphics.rgb 200 100 100 let game_won = Graphics.rgb 100 200 100 *)
 end
+
+let player_one_color = ref Colors.red
+let player_two_color = ref Colors.red
 
 (* These constants are optimized for running on a low-resolution screen. Feel
    free to increase the scaling factor to tweak! *)
@@ -24,6 +33,10 @@ module Constants = struct
   let header_height = 100
   let play_area_width = 1000
   let circle_size = 25
+
+  let colors =
+    [ Colors.red; Colors.purple; Colors.orange; Colors.gray; Colors.lime ]
+  ;;
 end
 
 (* let draw_header ~game_state score = let open Constants in let header_color
@@ -72,9 +85,9 @@ let draw_play_area () =
 let draw_sprites (game : Game.t) =
   let x_1, y_1 = game.player_one.curr_island.position in
   let x_2, y_2 = game.player_two.curr_island.position in
-  Graphics.set_color Colors.purple;
+  Graphics.set_color !player_one_color;
   Graphics.fill_rect (x_1 - 11) (y_1 + 25) 21 25;
-  Graphics.set_color Colors.orange;
+  Graphics.set_color !player_two_color;
   Graphics.fill_rect (x_2 - 11) (y_2 + 25) 21 25;
   Graphics.set_color Colors.tan;
   Graphics.fill_circle (x_1 - 1) (y_1 + 62) 12;
@@ -101,7 +114,7 @@ let draw_islands (game : Game.t) =
     draw_circle x y ~color:Colors.green);
   let player_one_island = game.player_one.curr_island in
   let p_1_x, p_1_y = player_one_island.position in
-  draw_circle p_1_x p_1_y ~color:Colors.purple;
+  draw_circle p_1_x p_1_y ~color:!player_one_color;
   let player_two_island = game.player_two.curr_island in
   let p_2_x, p_2_y = player_two_island.position in
   draw_circle p_2_x p_2_y ~color:Colors.orange;
@@ -246,12 +259,37 @@ let handle_game_states_visually (game : Game.t) =
   let open Constants in
   let state = game.game_state in
   match state with
-  | Start ->
+  | Start (player_one_index, player_two_index) ->
+    player_one_color := List.nth_exn colors player_one_index;
+    player_two_color := List.nth_exn colors player_two_index;
     Graphics.moveto ((play_area_width / 2) - 200) (play_area_height / 2);
     Graphics.draw_string
-      " Welcome to Jeopardy Island. Press Spacebar to Start"
+      " Welcome to Jeopardy Island. Press Spacebar to Start";
+    (* mounds *)
+    Graphics.fill_arc 150 header_height 50 30 0 180;
+    Graphics.fill_arc (play_area_width - 150) header_height 50 30 0 180;
+    (* legs *)
+    Graphics.set_color Colors.jeans;
+    Graphics.fill_rect 135 (header_height + 30) 10 60;
+    Graphics.fill_rect 160 (header_height + 30) 10 60;
+    Graphics.fill_rect (play_area_width - 140) (header_height + 30) 10 60;
+    Graphics.fill_rect (play_area_width - 165) (header_height + 30) 10 60;
+    Graphics.fill_rect 135 (header_height + 90) 35 20;
+    Graphics.fill_rect (play_area_width - 165) (header_height + 90) 35 20;
+    (* shirt *)
+    Graphics.set_color !player_one_color;
+    Graphics.fill_rect 135 (header_height + 110) 35 40;
+    Graphics.fill_rect 125 (header_height + 150) 55 20;
+    Graphics.set_color !player_two_color;
+    Graphics.fill_rect (play_area_width - 165) (header_height + 110) 35 40;
+    Graphics.fill_rect (play_area_width - 175) (header_height + 150) 55 20;
+    (* head *)
+    Graphics.set_color Colors.tan;
+    Graphics.fill_circle 152 (header_height + 190) 20;
+    Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20
   | Game_over ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
+    Graphics.set_color Colors.tan;
     Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
     Graphics.draw_string " Game Over"
   | Answering _ | Buzzing ->
