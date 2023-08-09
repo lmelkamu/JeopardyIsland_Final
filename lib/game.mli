@@ -31,7 +31,6 @@ type t =
   ; mutable game_state : Game_state.t
   ; mutable islands : Island.t list
   ; map : (Island.t, Island.Set.t) Hashtbl.t
-  ; mutable questions : Question.Question.t list
   ; mutable selected_island : Island.t option
   ; mutable visisted_islands : Island.t list
   }

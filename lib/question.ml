@@ -10,6 +10,7 @@ module For_parsing = struct
       { question : string
       ; correct_answer : string
       ; incorrect_answers : string list
+      ; category : string
       }
     [@@deriving jsonaf, sexp] [@@jsonaf.allow_extra_fields]
   end
@@ -25,8 +26,10 @@ module Question = struct
     { question : string
     ; answers : string list
     ; correct_answer : char
+    ; category : string
     }
-  [@@deriving jsonaf, sexp, compare, hash] [@@jsonaf.allow_extra_fields]
+  [@@deriving jsonaf, sexp, compare, hash, equal]
+  [@@jsonaf.allow_extra_fields]
 
   let unescape_html text =
     let soup = Soup.parse text in
@@ -48,6 +51,7 @@ module Question = struct
     { question = unescape_html question.question
     ; answers
     ; correct_answer = correct_char
+    ; category = unescape_html question.category
     }
   ;;
 end

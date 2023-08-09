@@ -65,7 +65,6 @@ type t =
   ; mutable game_state : Game_state.t
   ; mutable islands : Island.t list
   ; map : (Island.t, Island.Set.t) Hashtbl.t
-  ; mutable questions : Question.Question.t list
   ; mutable selected_island : Island.t option
   ; mutable visisted_islands : Island.t list
   }
@@ -101,7 +100,7 @@ let update_answer (game : t) key =
   | 'a' | 'b' | 'c' | 'd' ->
     game.game_state
       <- Game_state.Correct_answer
-           (Question.is_correct (List.hd_exn game.questions) key)
+           (Question.is_correct game.curr_player.curr_island.question key)
   | _ -> ()
 ;;
 
@@ -150,11 +149,11 @@ let update_selecting (game : t) key index =
               ~name:game.curr_player.name
               ~position:game.curr_player.curr_island.position
               ~team
+              ~question:game.curr_player.curr_island.question
               ()
             :: game.visisted_islands;
        game.curr_player.curr_island <- Option.value_exn game.selected_island;
        game.selected_island <- None;
-       game.questions <- List.tl_exn game.questions;
        game.game_state <- Game_state.Buzzing)
   | _ -> ()
 ;;
@@ -277,6 +276,7 @@ let create_islands difficulty =
     ; "Zephyria"
     ]
   in
+  let%map questions = Question.get_questions size in
   let rec find_valid (current_nodes : (int * int) list) (max_islands : int)
     : (int * int) list
     =
@@ -309,7 +309,11 @@ let create_islands difficulty =
       let planet = List.nth_exn solar_system idx in
       G.add_vertex graph planet;
       let x, y = List.nth_exn positions idx in
-      Island.create ~name:planet ~position:(x, y) ())
+      Island.create
+        ~name:planet
+        ~position:(x, y)
+        ~question:(List.nth_exn questions idx)
+        ())
   in
   let leftmost, rightmost =
     List.fold
@@ -318,8 +322,13 @@ let create_islands difficulty =
         ( Island.create
             ~name:"small"
             ~position:(Int.max_value, Int.max_value)
+            ~question:(List.hd_exn questions)
             ()
-        , Island.create ~name:"big" ~position:(0, 0) () )
+        , Island.create
+            ~name:"big"
+            ~position:(0, 0)
+            ~question:(List.hd_exn questions)
+            () )
       ~f:(fun (small, big) island ->
         let min_x, _ = small.position in
         let max_x, _ = big.position in
@@ -328,10 +337,9 @@ let create_islands difficulty =
         let new_max = if x > max_x then island else big in
         new_min, new_max)
   in
-  let%map questions = Question.get_questions size in
   (* create_graph ~graph ~nodes ~distance:10.0; *)
   Dot.output_graph (Out_channel.create "map.dot") graph;
-  islands, questions, graph, leftmost, rightmost
+  islands, graph, leftmost, rightmost
 ;;
 
 let create
@@ -340,7 +348,6 @@ let create
   (player_2_name : string)
   =
   let%map ( (islands : Island.t list)
-          , (questions : Question.t)
           , (graph : G.t)
           , (leftmost : Island.t)
           , (rightmost : Island.t) )
@@ -356,7 +363,6 @@ let create
     ; game_state = Game_state.Start
     ; islands
     ; map = Island.Table.create ()
-    ; questions
     ; selected_island = None
     ; visisted_islands = []
     }

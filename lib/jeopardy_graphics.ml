@@ -105,7 +105,34 @@ let draw_islands (game : Game.t) =
   let player_two_island = game.player_two.curr_island in
   let p_2_x, p_2_y = player_two_island.position in
   draw_circle p_2_x p_2_y ~color:Colors.orange;
-  draw_sprites game
+  draw_sprites game;
+  if is_none game.selected_island
+  then ()
+  else (
+    let selected = Option.value_exn game.selected_island in
+    let category = selected.question.category in
+    let x, y = selected.position in
+    Graphics.set_font "-adobe-courier-bold-r-normal--10-0-0-0-m-0-iso8859-1";
+    Graphics.moveto (x - (3 * String.length category)) (y - 35);
+    Graphics.set_color Colors.black;
+    Graphics.draw_string category)
+;;
+
+let draw_visited (game : Game.t) =
+  let player_one_islands =
+    List.filter game.visisted_islands ~f:(fun island ->
+      Option.value_exn island.team)
+  in
+  let player_two_islands =
+    List.filter game.visisted_islands ~f:(fun island ->
+      not (Option.value_exn island.team))
+  in
+  List.iter player_one_islands ~f:(fun island ->
+    let x, y = island.position in
+    draw_circle x y ~color:Colors.purple);
+  List.iter player_two_islands ~f:(fun island ->
+    let x, y = island.position in
+    draw_circle x y ~color:Colors.orange)
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
@@ -167,8 +194,7 @@ let draw_question_and_answers (game : Game.t) =
   let choices = [ "A:"; "B:"; "C:"; "D:" ] in
   let rect_width = 300 in
   let rect_height = 200 in
-  let questions = game.questions in
-  let question = List.hd_exn questions in
+  let question = game.curr_player.curr_island.question in
   let question_string = question.question in
   (* let word_split = String.split words ~on:' ' in List.split_n word_split
      number_of_words in *)
@@ -230,9 +256,12 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.draw_string " Game Over"
   | Answering _ | Buzzing ->
     draw_islands game;
+    draw_visited game;
     draw_question_and_answers game
   | Correct_answer _ ->
-    let correct_answer = (List.hd_exn game.questions).correct_answer in
+    let correct_answer =
+      game.curr_player.curr_island.question.correct_answer
+    in
     let index_corect =
       match correct_answer with
       | 'a' -> 0
@@ -242,12 +271,14 @@ let handle_game_states_visually (game : Game.t) =
       | _ -> failwith ""
     in
     let correct_string =
-      List.nth_exn (List.hd_exn game.questions).answers index_corect
+      List.nth_exn game.curr_player.curr_island.question.answers index_corect
     in
     draw_islands game;
+    draw_visited game;
     draw_correct correct_answer correct_string
   | Selecting _ ->
     draw_islands game;
+    draw_visited game;
     (match game.selected_island with
      | None -> ()
      | Some island ->
@@ -272,7 +303,7 @@ let draw_board (game : Game.t) =
      "-adobe-courier-medium-r-*-*-18-*-*-*-*-70-iso8859-1"; *)
   (* Graphics.set_font
      "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1"; *)
-  Graphics.set_font "-adobe-courier-medium-r-normal--18-0-0-0-m-0-iso8859-1";
+  Graphics.set_font "-adobe-courier-bold-r-normal--18-0-0-0-m-0-iso8859-1";
   Graphics.display_mode false;
   (* box 1: play area *)
   draw_play_area ();
@@ -291,11 +322,15 @@ let draw_board (game : Game.t) =
   Graphics.set_color Colors.black;
   Graphics.draw_string (Printf.sprintf " %s" header_text);
   Graphics.moveto
-    (play_area_width - 130 - (5 * player_two_score_length))
+    (play_area_width
+     - 140
+     - (9 * (player_two_score_length + String.length player_two.name)))
     (play_area_height - 50);
   Graphics.draw_string
     [%string "%{player_two.name} Score: %{player_two_score#Int}"];
-  Graphics.moveto 20 (play_area_height - 50);
+  Graphics.moveto
+    (20 + (String.length player_one.name * 2 / 3))
+    (play_area_height - 50);
   Graphics.draw_string
     [%string "%{player_one.name} Score: %{player_one_score#Int}"];
   Graphics.set_color Colors.head_color;
@@ -307,7 +342,7 @@ let draw_board (game : Game.t) =
      ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
      Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
      Graphics.draw_string "D:"; *)
-  Graphics.set_font "-adobe-courier-medium-r-normal--16-0-0-0-m-0-iso8859-1";
+  Graphics.set_font "-adobe-courier-bold-r-normal--16-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
   Graphics.synchronize ()

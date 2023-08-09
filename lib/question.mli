@@ -10,8 +10,10 @@ module Question : sig
     { question : string
     ; answers : string list
     ; correct_answer : char
+    ; category : string
     }
-  [@@deriving jsonaf, sexp, compare] [@@jsonaf.allow_extra_fields]
+  [@@deriving jsonaf, sexp, compare, hash, equal]
+  [@@jsonaf.allow_extra_fields]
 end
 
 type t = Question.t list
