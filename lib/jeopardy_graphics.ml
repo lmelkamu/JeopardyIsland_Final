@@ -117,7 +117,7 @@ let draw_islands (game : Game.t) =
   draw_circle p_1_x p_1_y ~color:!player_one_color;
   let player_two_island = game.player_two.curr_island in
   let p_2_x, p_2_y = player_two_island.position in
-  draw_circle p_2_x p_2_y ~color:Colors.orange;
+  draw_circle p_2_x p_2_y ~color:!player_two_color;
   draw_sprites game;
   if is_none game.selected_island
   then ()
@@ -142,10 +142,10 @@ let draw_visited (game : Game.t) =
   in
   List.iter player_one_islands ~f:(fun island ->
     let x, y = island.position in
-    draw_circle x y ~color:Colors.purple);
+    draw_circle x y ~color:!player_one_color);
   List.iter player_two_islands ~f:(fun island ->
     let x, y = island.position in
-    draw_circle x y ~color:Colors.orange)
+    draw_circle x y ~color:!player_two_color)
 ;;
 
 (* let draw_apple apple = let apple_position = Apple.position apple in
@@ -262,9 +262,11 @@ let handle_game_states_visually (game : Game.t) =
   | Start (player_one_index, player_two_index) ->
     player_one_color := List.nth_exn colors player_one_index;
     player_two_color := List.nth_exn colors player_two_index;
-    Graphics.moveto ((play_area_width / 2) - 200) (play_area_height / 2);
+    Graphics.moveto ((play_area_width / 2) - 230) (play_area_height / 2);
     Graphics.draw_string
-      " Welcome to Jeopardy Island. Press Spacebar to Start";
+      " Welcome to Jeopardy Island. Players can choose their colors by \
+       pressing 'a' and 'l'. \n\
+      \      Press spacebar to start!!";
     (* mounds *)
     Graphics.fill_arc 150 header_height 50 30 0 180;
     Graphics.fill_arc (play_area_width - 150) header_height 50 30 0 180;
