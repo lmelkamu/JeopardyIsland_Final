@@ -26,11 +26,17 @@ let handle_keys (game : Game.t) ~game_over =
     | None -> ()
     | Some key ->
       Game.handle_key game key;
-      (match game.game_state with
-       | Game_over _ -> game_over := true
-       | _ -> ());
+      (match game.game_state with Game_over -> game_over := true | _ -> ());
+      Jeopardy_graphics.draw_board game)
+;;
+
+let handle_animation (game : Game.t) ~game_over =
+  every ~stop:game_over 0.1 ~f:(fun () ->
+    match game.game_state with
+    | Game.Game_state.Start _ ->
+      Jeopardy_graphics.waving ();
       Jeopardy_graphics.draw_board game
-    (* Jeopardy_graphics.render game) *))
+    | _ -> ())
 ;;
 
 let run () =
@@ -49,5 +55,6 @@ let run () =
   let%bind game = Jeopardy_graphics.init_exn level player_one player_two in
   Jeopardy_graphics.draw_board game;
   let game_over = ref false in
+  handle_animation game ~game_over;
   return (handle_keys game ~game_over)
 ;;

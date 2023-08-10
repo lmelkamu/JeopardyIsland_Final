@@ -17,3 +17,4 @@ open! Async
 val draw_board : Game.t -> unit
 val init_exn : int -> string -> string -> Game.t Deferred.t
 val read_key : unit -> char option
+val waving : unit -> unit

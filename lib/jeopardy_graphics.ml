@@ -25,6 +25,7 @@ end
 
 let player_one_color = ref Colors.red
 let player_two_color = ref Colors.red
+let wave_state = ref 0
 
 (* These constants are optimized for running on a low-resolution screen. Feel
    free to increase the scaling factor to tweak! *)
@@ -237,6 +238,33 @@ let draw_correct (letter : char) (answer : string) =
     Graphics.draw_string line)
 ;;
 
+let waving () =
+  let open Constants in
+  let phase_1_x, phase_1_y = -20, 0 in
+  let phase_2_x, phase_2_y = -17, 10 in
+  let phase_3_x, phase_3_y = -10, 17 in
+  let phase_4_x, phase_4_y = 0, 20 in
+  let phase_5_x, phase_5_y = 10, 17 in
+  Graphics.set_color Colors.tan;
+  Graphics.set_line_width 10;
+  let curr_phase_x, curr_phase_y =
+    match !wave_state with
+    | 0 | 8 -> phase_1_x, phase_1_y
+    | 1 | 7 -> phase_2_x, phase_2_y
+    | 2 | 6 -> phase_3_x, phase_3_y
+    | 3 | 5 -> phase_4_x, phase_4_y
+    | 4 -> phase_5_x, phase_5_y
+    | _ -> failwith ""
+  in
+  Graphics.moveto 105 (header_height + 160);
+  Graphics.lineto (105 + curr_phase_x) (header_height + 160 + curr_phase_y);
+  Graphics.moveto (play_area_width - 195) (header_height + 160);
+  Graphics.lineto
+    (play_area_width - 195 + curr_phase_x)
+    (header_height + 160 + curr_phase_y);
+  wave_state := (!wave_state + 1) % 9
+;;
+
 let read_key () =
   if Graphics.key_pressed () then Some (Graphics.read_key ()) else None
 ;;
@@ -254,6 +282,7 @@ let handle_game_states_visually (game : Game.t) =
          pressing 'a' and 'l'. Press spacebar to start!!"
         50
     in
+    Graphics.set_color Colors.head_color;
     List.iteri text ~f:(fun index line ->
       Graphics.moveto
         ((play_area_width / 2) - 250)
@@ -279,13 +308,20 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.fill_rect (play_area_width - 175) (header_height + 150) 55 20;
     (* head + arms *)
     Graphics.set_color Colors.tan;
-    Graphics.fill_rect 125 (header_height + 110) 10 40;
+    Graphics.fill_rect 105 (header_height + 155) 20 10;
     Graphics.fill_rect 170 (header_height + 110) 10 40;
-    Graphics.fill_rect (play_area_width - 175) (header_height + 110) 10 40;
+    Graphics.fill_rect (play_area_width - 195) (header_height + 155) 20 10;
     Graphics.fill_rect (play_area_width - 130) (header_height + 110) 10 40;
     Graphics.fill_circle 152 (header_height + 190) 20;
-    Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20
-  | Game_over winner ->
+    Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20;
+    waving ();
+    (* speech bubbles *)
+    Graphics.set_color Graphics.white;
+    Graphics.fill_rect 200 320 150 100;
+    Graphics.fill_poly (Array.of_list [ 220, 320; 240, 320; 230, 300 ]);
+    Graphics.fill_rect 670 320 150 100;
+    Graphics.fill_poly (Array.of_list [ 800, 320; 780, 320; 790, 300 ])
+  | Game_over ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
     let mound_x_coord = 150 in
     Graphics.set_color Colors.dark_gray;
@@ -503,6 +539,18 @@ let draw_board (game : Game.t) =
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)
   Graphics.fill_rect 0 0 play_area_width header_height;
+  (* borders *)
+  Graphics.set_color Colors.black;
+  Graphics.set_line_width 5;
+  Graphics.moveto 0 0;
+  Graphics.lineto play_area_width 0;
+  Graphics.lineto play_area_width play_area_height;
+  Graphics.lineto 0 play_area_height;
+  Graphics.lineto 0 0;
+  Graphics.moveto 0 header_height;
+  Graphics.lineto play_area_width header_height;
+  Graphics.moveto 0 (play_area_height - header_height);
+  Graphics.lineto play_area_width (play_area_height - header_height);
   Graphics.set_font "-adobe-courier-bold-r-normal--16-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
