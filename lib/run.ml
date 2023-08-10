@@ -26,7 +26,9 @@ let handle_keys (game : Game.t) ~game_over =
     | None -> ()
     | Some key ->
       Game.handle_key game key;
-      (match game.game_state with Game_over -> game_over := true | _ -> ());
+      (match game.game_state with
+       | Game_over _ -> game_over := true
+       | _ -> ());
       Jeopardy_graphics.draw_board game)
 ;;
 
