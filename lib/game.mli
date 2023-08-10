@@ -14,7 +14,7 @@ end
 module Game_state : sig
   type t =
     | Start of int * int
-    | Game_over
+    | Game_over of Player.t
     | Answering of Player.t
     | Buzzing
     | Selecting of Player.t * int option

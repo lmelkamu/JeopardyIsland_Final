@@ -19,7 +19,7 @@ end
 module Game_state = struct
   type t =
     | Start of int * int
-    | Game_over
+    | Game_over of Player.t
     | Answering of Player.t
     | Buzzing
     | Selecting of Player.t * int option
@@ -29,7 +29,8 @@ module Game_state = struct
   let to_string t =
     match t with
     | Start _ -> "Jeopardy Island!!"
-    | Game_over -> ""
+    | Game_over player ->
+      String.append "Game Over. The winner is: " player.name
     | Answering player -> String.append player.name " is answering"
     | Buzzing -> "Buzz in to answer - 'q' for Player 1, 'p' for Player 2"
     | Selecting (player, _) ->
@@ -134,19 +135,27 @@ let update_correct (game : t) (is_correct : bool) =
 let update_selecting (game : t) key index =
   match key with
   | 't' ->
-    (match Hashtbl.find game.map game.curr_player.curr_island with
-     | None -> game.game_state <- Game_state.Game_over
-     | Some neighbors ->
-       let selected =
-         match index with
-         | None -> 0
-         | Some index -> (index + 1) % Set.length neighbors
-       in
-       game.selected_island
-         <- Some (Set.nth neighbors selected |> Option.value_exn);
-       game.game_state
-         <- Game_state.Selecting (game.curr_player, Some selected));
-    game.current_question <- (Option.value_exn game.selected_island).question
+    let neighbors = Hashtbl.find_exn game.map game.curr_player.curr_island in
+    if Set.is_empty neighbors
+    then (
+      let winning_player =
+        if game.player_one.points > game.player_two.points
+        then game.player_one
+        else game.player_two
+      in
+      game.game_state <- Game_state.Game_over winning_player)
+    else (
+      let selected =
+        match index with
+        | None -> 0
+        | Some index -> (index + 1) % Set.length neighbors
+      in
+      game.selected_island
+        <- Some (Set.nth neighbors selected |> Option.value_exn);
+      game.game_state
+        <- Game_state.Selecting (game.curr_player, Some selected);
+      game.current_question
+        <- (Option.value_exn game.selected_island).question)
   | 'y' ->
     (match index with
      | None -> ()

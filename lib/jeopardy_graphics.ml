@@ -4,6 +4,7 @@ open! Graphics
 
 module Colors = struct
   let black = Graphics.rgb 000 000 000
+  let dark_gray = Graphics.rgb 050 050 050
   let green = Graphics.rgb 137 177 096
   let head_color = Graphics.rgb 204 176 136
   let gold = Graphics.rgb 255 223 0
@@ -294,11 +295,144 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.fill_rect (play_area_width - 130) (header_height + 110) 10 40;
     Graphics.fill_circle 152 (header_height + 190) 20;
     Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20
-  | Game_over ->
+  | Game_over winner ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
+    let mound_x_coord = 150 in
+    Graphics.set_color Colors.dark_gray;
+    if Player.equal winner game.player_two
+    then (
+      Graphics.fill_rect (mound_x_coord - 60) header_height 120 240;
+      Graphics.set_color Colors.black;
+      Graphics.fill_rect (mound_x_coord - 60) (header_height + 230) 120 20;
+      Graphics.fill_rect (mound_x_coord - 60) header_height 10 230;
+      Graphics.fill_rect (mound_x_coord + 50) header_height 10 230)
+    else (
+      Graphics.fill_rect
+        (play_area_width - (mound_x_coord + 60))
+        header_height
+        120
+        240;
+      Graphics.set_color Colors.black;
+      Graphics.fill_rect
+        (play_area_width - (mound_x_coord + 60))
+        (header_height + 230)
+        120
+        20;
+      Graphics.fill_rect
+        (play_area_width - (mound_x_coord + 60))
+        header_height
+        10
+        230;
+      Graphics.fill_rect
+        (play_area_width - (mound_x_coord - 50))
+        header_height
+        10
+        230);
+    (* mounds *)
+    Graphics.fill_arc mound_x_coord header_height 50 30 0 180;
+    Graphics.fill_arc
+      (play_area_width - mound_x_coord)
+      header_height
+      50
+      30
+      0
+      180;
+    (* legs *)
+    Graphics.set_color Colors.jeans;
+    Graphics.fill_rect (mound_x_coord - 15) (header_height + 30) 10 60;
+    Graphics.fill_rect (mound_x_coord + 10) (header_height + 30) 10 60;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord - 10))
+      (header_height + 30)
+      10
+      60;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord + 15))
+      (header_height + 30)
+      10
+      60;
+    Graphics.fill_rect (mound_x_coord - 15) (header_height + 90) 35 20;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord + 15))
+      (header_height + 90)
+      35
+      20;
+    (* shirt *)
+    Graphics.set_color !player_one_color;
+    Graphics.fill_rect (mound_x_coord - 15) (header_height + 110) 35 40;
+    Graphics.fill_rect (mound_x_coord - 25) (header_height + 150) 55 20;
+    Graphics.set_color !player_two_color;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord + 15))
+      (header_height + 110)
+      35
+      40;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord + 25))
+      (header_height + 150)
+      55
+      20;
+    (* head + arms *)
     Graphics.set_color Colors.tan;
-    Graphics.moveto ((play_area_width / 2) - 20) (play_area_height / 2);
-    Graphics.draw_string " Game Over"
+    Graphics.fill_rect (mound_x_coord - 25) (header_height + 110) 10 40;
+    Graphics.fill_rect (mound_x_coord + 20) (header_height + 110) 10 40;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord + 25))
+      (header_height + 110)
+      10
+      40;
+    Graphics.fill_rect
+      (play_area_width - (mound_x_coord - 20))
+      (header_height + 110)
+      10
+      40;
+    Graphics.fill_circle (mound_x_coord + 2) (header_height + 190) 20;
+    (* 152=x 290=y 20=radius*)
+    Graphics.fill_circle
+      (play_area_width - (mound_x_coord - 2))
+      (header_height + 190)
+      20;
+    Graphics.set_line_width 3;
+    Graphics.set_color Colors.black;
+    if Player.equal winner game.player_two
+    then (
+      Graphics.moveto (mound_x_coord - 13) (header_height + 185);
+      (* 137 = x *)
+      Graphics.lineto (mound_x_coord - 3) (header_height + 195);
+      Graphics.moveto (mound_x_coord - 13) (header_height + 195);
+      Graphics.lineto (mound_x_coord - 3) (header_height + 185);
+      Graphics.moveto (mound_x_coord + 17) (header_height + 185);
+      (* 167 = x *)
+      Graphics.lineto (mound_x_coord + 7) (header_height + 195);
+      Graphics.moveto (mound_x_coord + 17) (header_height + 195);
+      Graphics.lineto (mound_x_coord + 7) (header_height + 185))
+    else (
+      Graphics.moveto
+        (play_area_width - (mound_x_coord + 13))
+        (header_height + 185);
+      (* 137 = x *)
+      Graphics.lineto
+        (play_area_width - (mound_x_coord + 3))
+        (header_height + 195);
+      Graphics.moveto
+        (play_area_width - (mound_x_coord + 13))
+        (header_height + 195);
+      Graphics.lineto
+        (play_area_width - (mound_x_coord + 3))
+        (header_height + 185);
+      Graphics.moveto
+        (play_area_width - (mound_x_coord - 17))
+        (header_height + 185);
+      (* 167 = x *)
+      Graphics.lineto
+        (play_area_width - (mound_x_coord - 7))
+        (header_height + 195);
+      Graphics.moveto
+        (play_area_width - (mound_x_coord - 17))
+        (header_height + 195);
+      Graphics.lineto
+        (play_area_width - (mound_x_coord - 7))
+        (header_height + 185))
   | Answering _ | Buzzing ->
     draw_islands game;
     draw_visited game;
