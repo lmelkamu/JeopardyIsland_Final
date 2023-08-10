@@ -321,7 +321,7 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.fill_poly (Array.of_list [ 220, 320; 240, 320; 230, 300 ]);
     Graphics.fill_rect 670 320 150 100;
     Graphics.fill_poly (Array.of_list [ 800, 320; 780, 320; 790, 300 ])
-  | Game_over ->
+  | Game_over winner ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
     let mound_x_coord = 150 in
     Graphics.set_color Colors.dark_gray;
