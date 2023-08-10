@@ -39,16 +39,6 @@ module Constants = struct
   ;;
 end
 
-(* let draw_header ~game_state score = let open Constants in let header_color
-   = match (game_state : Game_state.t) with | In_progress ->
-   Colors.game_in_progress | Game_over _ -> Colors.game_lost | Win ->
-   Colors.game_won in Graphics.set_color header_color; Graphics.fill_rect 0
-   play_area_height play_area_width header_height; let header_text =
-   Game_state.to_string game_state in Graphics.set_color Colors.black;
-   Graphics.set_text_size 20; Graphics.moveto 0 (play_area_height + 25);
-   Graphics.draw_string (Printf.sprintf " %s" header_text); Graphics.moveto
-   (play_area_width - 75) (play_area_height + 25); Graphics.draw_string
-   (Printf.sprintf "Score: %d" score) ;; *)
 let only_one : bool ref = ref false
 
 let init_exn level_num player_one player_two =
@@ -513,12 +503,6 @@ let draw_board (game : Game.t) =
   Graphics.set_color Colors.head_color;
   (* box 3: bottom box *)
   Graphics.fill_rect 0 0 play_area_width header_height;
-  (* Graphics.moveto right_shift (play_area_height - 70);
-     Graphics.draw_string "A:"; Graphics.moveto ((play_area_width / 4) +
-     right_shift) 70; Graphics.draw_string "B:"; Graphics.moveto
-     ((play_area_width / 2) + right_shift) 70; Graphics.draw_string "C:";
-     Graphics.moveto ((play_area_width * 3 / 4) + right_shift) 70;
-     Graphics.draw_string "D:"; *)
   Graphics.set_font "-adobe-courier-bold-r-normal--16-0-0-0-m-0-iso8859-1";
   handle_game_states_visually game;
   Graphics.display_mode true;
