@@ -320,7 +320,12 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.fill_rect 200 320 150 100;
     Graphics.fill_poly (Array.of_list [ 220, 320; 240, 320; 230, 300 ]);
     Graphics.fill_rect 670 320 150 100;
-    Graphics.fill_poly (Array.of_list [ 800, 320; 780, 320; 790, 300 ])
+    Graphics.fill_poly (Array.of_list [ 800, 320; 780, 320; 790, 300 ]);
+    Graphics.set_color Colors.black;
+    Graphics.moveto 250 370;
+    Graphics.draw_string ("Hi! I'm " ^ game.player_one.name);
+    Graphics.moveto 720 370;
+    Graphics.draw_string ("Hi!  I'm " ^ game.player_two.name)
   | Game_over winner ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
     let mound_x_coord = 150 in
