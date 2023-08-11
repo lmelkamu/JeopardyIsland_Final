@@ -286,7 +286,7 @@ let handle_game_states_visually (game : Game.t) =
     List.iteri text ~f:(fun index line ->
       Graphics.moveto
         ((play_area_width / 2) - 250)
-        ((play_area_height / 2) - (20 * index));
+        ((play_area_height / 2) + 100 - (20 * index));
       Graphics.draw_string line);
     (* mounds *)
     Graphics.fill_arc 150 header_height 50 30 0 180;
@@ -316,16 +316,20 @@ let handle_game_states_visually (game : Game.t) =
     Graphics.fill_circle (play_area_width - 148) (header_height + 190) 20;
     waving ();
     (* speech bubbles *)
-    Graphics.set_color Graphics.white;
+    Graphics.set_color Colors.gray;
     Graphics.fill_rect 200 320 150 100;
     Graphics.fill_poly (Array.of_list [ 220, 320; 240, 320; 230, 300 ]);
     Graphics.fill_rect 670 320 150 100;
     Graphics.fill_poly (Array.of_list [ 800, 320; 780, 320; 790, 300 ]);
     Graphics.set_color Colors.black;
-    Graphics.moveto 250 370;
-    Graphics.draw_string ("Hi! I'm " ^ game.player_one.name);
-    Graphics.moveto 720 370;
-    Graphics.draw_string ("Hi!  I'm " ^ game.player_two.name)
+    let text_1 = split_string ("Hi! I'm " ^ game.player_one.name) 10 in
+    List.iteri text_1 ~f:(fun idx line ->
+      Graphics.moveto 230 (370 - (20 * idx));
+      Graphics.draw_string line);
+    let text_2 = split_string ("Hi! I'm " ^ game.player_two.name) 10 in
+    List.iteri text_2 ~f:(fun idx line ->
+      Graphics.moveto 700 (370 - (20 * idx));
+      Graphics.draw_string line)
   | Game_over winner ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
     let mound_x_coord = 150 in
@@ -425,6 +429,7 @@ let handle_game_states_visually (game : Game.t) =
       20;
     Graphics.set_line_width 3;
     Graphics.set_color Colors.black;
+    (* eye crosses *)
     if Player.equal winner game.player_two
     then (
       Graphics.moveto (mound_x_coord - 13) (header_height + 185);
