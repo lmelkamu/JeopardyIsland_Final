@@ -1,43 +1,28 @@
 digraph G {
   Eris [fillcolor="#0003E8", label="Eris", shape=box, ];
   Neptune [fillcolor="#0003E8", label="Neptune", shape=box, ];
-  Vulcanus [fillcolor="#0003E8", label="Vulcanus", shape=box, ];
   Mercury [fillcolor="#0003E8", label="Mercury", shape=box, ];
-  Lyra Minor [fillcolor="#0003E8", label="Lyra Minor", shape=box, ];
-  Aurelia [fillcolor="#0003E8", label="Aurelia", shape=box, ];
   Uranus [fillcolor="#0003E8", label="Uranus", shape=box, ];
-  Xenoth [fillcolor="#0003E8", label="Xenoth", shape=box, ];
   Ganymede [fillcolor="#0003E8", label="Ganymede", shape=box, ];
   Rhea [fillcolor="#0003E8", label="Rhea", shape=box, ];
   Titan [fillcolor="#0003E8", label="Titan", shape=box, ];
-  Terra Nova [fillcolor="#0003E8", label="Terra Nova", shape=box, ];
-  Nova-9 [fillcolor="#0003E8", label="Nova-9", shape=box, ];
   Moon [fillcolor="#0003E8", label="Moon", shape=box, ];
   Sun [fillcolor="#0003E8", label="Sun", shape=box, ];
   Astronova [fillcolor="#0003E8", label="Astronova", shape=box, ];
   Oberon [fillcolor="#0003E8", label="Oberon", shape=box, ];
-  Solara [fillcolor="#0003E8", label="Solara", shape=box, ];
   Venus [fillcolor="#0003E8", label="Venus", shape=box, ];
   Hoth [fillcolor="#0003E8", label="Hoth", shape=box, ];
   Iapetus [fillcolor="#0003E8", label="Iapetus", shape=box, ];
-  Lunaris [fillcolor="#0003E8", label="Lunaris", shape=box, ];
   Titania [fillcolor="#0003E8", label="Titania", shape=box, ];
   Jupiter [fillcolor="#0003E8", label="Jupiter", shape=box, ];
   Europa [fillcolor="#0003E8", label="Europa", shape=box, ];
-  Caelum [fillcolor="#0003E8", label="Caelum", shape=box, ];
-  Orionis [fillcolor="#0003E8", label="Orionis", shape=box, ];
-  Pandora [fillcolor="#0003E8", label="Pandora", shape=box, ];
   Callisto [fillcolor="#0003E8", label="Callisto", shape=box, ];
   Zephyrion [fillcolor="#0003E8", label="Zephyrion", shape=box, ];
   Dimidium [fillcolor="#0003E8", label="Dimidium", shape=box, ];
-  Thalassia [fillcolor="#0003E8", label="Thalassia", shape=box, ];
   Veridian Prime [fillcolor="#0003E8", label="Veridian Prime", shape=box, ];
   Pluto [fillcolor="#0003E8", label="Pluto", shape=box, ];
   Mars [fillcolor="#0003E8", label="Mars", shape=box, ];
-  Nebuloria [fillcolor="#0003E8", label="Nebuloria", shape=box, ];
-  Epsilon Eridani [fillcolor="#0003E8", label="Epsilon Eridani", shape=box, ];
   Io [fillcolor="#0003E8", label="Io", shape=box, ];
-  Galactica [fillcolor="#0003E8", label="Galactica", shape=box, ];
   Triton [fillcolor="#0003E8", label="Triton", shape=box, ];
   
   
