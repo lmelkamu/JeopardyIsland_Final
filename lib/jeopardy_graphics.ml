@@ -333,45 +333,82 @@ let handle_game_states_visually (game : Game.t) =
   | Game_over winner ->
     Graphics.draw_rect 0 0 play_area_width play_area_height;
     let mound_x_coord = 150 in
-    Graphics.set_color Colors.dark_gray;
+    (* mounds *)
+    Graphics.set_color Colors.gold;
+    Graphics.fill_rect (mound_x_coord - 60) header_height 120 10;
+    Graphics.fill_rect (mound_x_coord - 30) (header_height + 10) 60 20;
+    Graphics.fill_rect
+      (play_area_width - mound_x_coord - 60)
+      header_height
+      120
+      10;
+    Graphics.fill_rect
+      (play_area_width - mound_x_coord - 30)
+      (header_height + 10)
+      60
+      20;
+    (* crown *)
+    Graphics.fill_poly
+      (Array.of_list
+         [ mound_x_coord - 30, 310
+         ; mound_x_coord + 30, 310
+         ; mound_x_coord + 40, 330
+         ; mound_x_coord + 20, 320
+         ; mound_x_coord, 330
+         ; mound_x_coord - 20, 320
+         ; mound_x_coord - 40, 330
+         ]);
+    Graphics.fill_poly
+      (Array.of_list
+         [ play_area_width - mound_x_coord - 30, 310
+         ; play_area_width - mound_x_coord + 30, 310
+         ; play_area_width - mound_x_coord + 40, 330
+         ; play_area_width - mound_x_coord + 20, 320
+         ; play_area_width - mound_x_coord, 330
+         ; play_area_width - mound_x_coord - 20, 320
+         ; play_area_width - mound_x_coord - 40, 330
+         ]);
+    Graphics.set_color Colors.black;
+    Graphics.draw_poly
+      (Array.of_list
+         [ mound_x_coord - 30, 310
+         ; mound_x_coord + 30, 310
+         ; mound_x_coord + 40, 330
+         ; mound_x_coord + 20, 320
+         ; mound_x_coord, 330
+         ; mound_x_coord - 20, 320
+         ; mound_x_coord - 40, 330
+         ]);
+    Graphics.draw_poly
+      (Array.of_list
+         [ play_area_width - mound_x_coord - 30, 310
+         ; play_area_width - mound_x_coord + 30, 310
+         ; play_area_width - mound_x_coord + 40, 330
+         ; play_area_width - mound_x_coord + 20, 320
+         ; play_area_width - mound_x_coord, 330
+         ; play_area_width - mound_x_coord - 20, 320
+         ; play_area_width - mound_x_coord - 40, 330
+         ]);
+    (* vatt *)
     if Player.equal winner game.player_two
     then (
-      Graphics.fill_rect (mound_x_coord - 60) header_height 120 240;
       Graphics.set_color Colors.black;
-      Graphics.fill_rect (mound_x_coord - 60) (header_height + 230) 120 20;
-      Graphics.fill_rect (mound_x_coord - 60) header_height 10 230;
-      Graphics.fill_rect (mound_x_coord + 50) header_height 10 230)
+      Graphics.fill_rect (mound_x_coord - 60) header_height 120 240;
+      Graphics.set_color Colors.dark_gray;
+      Graphics.fill_rect (mound_x_coord - 50) header_height 100 220)
     else (
+      Graphics.set_color Colors.black;
       Graphics.fill_rect
         (play_area_width - (mound_x_coord + 60))
         header_height
         120
         240;
-      Graphics.set_color Colors.black;
+      Graphics.set_color Colors.dark_gray;
       Graphics.fill_rect
-        (play_area_width - (mound_x_coord + 60))
-        (header_height + 230)
-        120
-        20;
-      Graphics.fill_rect
-        (play_area_width - (mound_x_coord + 60))
+        (play_area_width - (mound_x_coord + 50))
         header_height
-        10
-        230;
-      Graphics.fill_rect
-        (play_area_width - (mound_x_coord - 50))
-        header_height
-        10
-        230);
-    (* mounds *)
-    Graphics.fill_arc mound_x_coord header_height 50 30 0 180;
-    Graphics.fill_arc
-      (play_area_width - mound_x_coord)
-      header_height
-      50
-      30
-      0
-      180;
+        100
+        220);
     (* legs *)
     Graphics.set_color Colors.jeans;
     Graphics.fill_rect (mound_x_coord - 15) (header_height + 30) 10 60;
